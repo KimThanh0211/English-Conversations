@@ -1,497 +1,817 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kho Hội Thoại Song Ngữ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .conversation-card { transition: all 0.3s ease; }
-        .conversation-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal.show { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: white; border-radius: 12px; padding: 24px; max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto; }
-        .dialogue-line { margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; border-left: 4px solid #e5e7eb; }
-        .dialogue-line.speaker-a { background-color: #eff6ff; border-left-color: #3b82f6; }
-        .dialogue-line.speaker-b { background-color: #f0fdf4; border-left-color: #10b981; }
-        .dialogue-input { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
-        .notification { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; z-index: 1001; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .notification.success { background-color: #10b981; }
-        .notification.error { background-color: #ef4444; }
-        .notification.info { background-color: #3b82f6; }
-        .preview-table { width: 100%; border-collapse: collapse; margin-top: 24px;}
-        .preview-table th, .preview-table td { border: 1px solid #e5e7eb; padding: 8px; }
-        .preview-table th { background: #f3f4f6; }
-        .preview-table tr:nth-child(even) { background: #f9fafb; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kho Hội Thoại Song Ngữ</title>
+  <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+      
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f5f5f5;
+          color: #333;
+      }
+      
+      .container {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 20px;
+      }
+      
+      header {
+          background-color: #2c3e50;
+          color: white;
+          padding: 20px 0;
+          margin-bottom: 30px;
+      }
+      
+      h1 {
+          text-align: center;
+      }
+      
+      .controls {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          margin-bottom: 20px;
+      }
+      
+      .search-box {
+          width: 100%;
+          padding: 12px;
+          font-size: 16px;
+          border: 2px solid #ddd;
+          border-radius: 4px;
+          margin-bottom: 15px;
+      }
+      
+      .filters {
+          display: flex;
+          gap: 15px;
+          flex-wrap: wrap;
+          align-items: center;
+      }
+      
+      .topic-tabs {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 15px;
+      }
+      
+      .topic-tab {
+          padding: 10px 20px;
+          border: 2px solid #3498db;
+          background: white;
+          color: #3498db;
+          border-radius: 25px;
+          cursor: pointer;
+          transition: all 0.3s;
+          font-weight: bold;
+      }
+      
+      .topic-tab.active {
+          background: #3498db;
+          color: white;
+      }
+      
+      .topic-tab:hover {
+          background: #2980b9;
+          color: white;
+          border-color: #2980b9;
+      }
+      
+      select {
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 14px;
+      }
+      
+      .add-btn {
+          background-color: #27ae60;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+          margin-left: auto;
+      }
+      
+      .add-btn:hover {
+          background-color: #229954;
+      }
+      
+      .topic-section {
+          margin-bottom: 40px;
+      }
+      
+      .topic-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 20px;
+          padding: 15px 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
+      
+      .topic-title {
+          font-size: 24px;
+          font-weight: bold;
+          margin-right: 15px;
+      }
+      
+      .topic-count {
+          background: rgba(255,255,255,0.2);
+          padding: 5px 12px;
+          border-radius: 15px;
+          font-size: 14px;
+      }
+      
+      .conversations-list {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+      }
+      
+      .conversation-card {
+          background: white;
+          border-radius: 12px;
+          padding: 25px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          transition: all 0.3s;
+          border-left: 5px solid #3498db;
+      }
+      
+      .conversation-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      }
+      
+      .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+      }
+      
+      .card-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #2c3e50;
+      }
+      
+      .level-badge {
+          background-color: #f39c12;
+          color: white;
+          padding: 6px 15px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: bold;
+      }
+      
+      .level-beginner { background-color: #27ae60; }
+      .level-intermediate { background-color: #f39c12; }
+      .level-advanced { background-color: #e74c3c; }
+      
+      .characters {
+          display: flex;
+          justify-content: center;
+          gap: 50px;
+          margin-bottom: 20px;
+          padding: 15px;
+          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+          border-radius: 8px;
+      }
+      
+      .character {
+          text-align: center;
+          font-weight: bold;
+          color: #2c3e50;
+          font-size: 16px;
+      }
+      
+      .character-a {
+          color: #3498db;
+      }
+      
+      .character-b {
+          color: #e74c3c;
+      }
+      
+      .dialogue-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          gap: 15px;
+          max-height: none;
+      }
+      
+      .dialogue-line {
+          padding: 15px;
+          border-radius: 12px;
+          position: relative;
+          margin-bottom: 10px;
+      }
+      
+      .dialogue-a {
+          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+          border-left: 4px solid #3498db;
+      }
+      
+      .dialogue-b {
+          background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+          border-left: 4px solid #e74c3c;
+      }
+      
+      .speaker-name {
+          font-weight: bold;
+          font-size: 15px;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+      }
+      
+      .speaker-a {
+          color: #2980b9;
+      }
+      
+      .speaker-b {
+          color: #c0392b;
+      }
+      
+      .dialogue-content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+      }
+      
+      .lang-text {
+          padding: 10px 12px;
+          border-radius: 8px;
+          line-height: 1.5;
+          font-size: 15px;
+      }
+      
+      .english-text {
+          background-color: rgba(255,255,255,0.8);
+          border: 1px solid rgba(0,0,0,0.1);
+          font-weight: 500;
+      }
+      
+      .vietnamese-text {
+          background-color: rgba(255,255,255,0.6);
+          border: 1px solid rgba(0,0,0,0.1);
+          font-style: italic;
+          color: #555;
+      }
+      
+      .modal {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+          z-index: 1000;
+      }
+      
+      .modal-content {
+          background: white;
+          width: 90%;
+          max-width: 700px;
+          margin: 30px auto;
+          padding: 30px;
+          border-radius: 8px;
+          position: relative;
+          max-height: 90vh;
+          overflow-y: auto;
+      }
+      
+      .close-btn {
+          position: absolute;
+          top: 10px;
+          right: 15px;
+          font-size: 28px;
+          cursor: pointer;
+          color: #999;
+      }
+      
+      .form-group {
+          margin-bottom: 20px;
+      }
+      
+      .form-group label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: bold;
+      }
+      
+      .form-group input, .form-group textarea, .form-group select {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 14px;
+      }
+      
+      .character-names {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+      }
+      
+      .dialogue-input {
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 15px;
+          margin-bottom: 15px;
+      }
+      
+      .dialogue-inputs {
+          max-height: 300px;
+          overflow-y: auto;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 15px;
+          margin-bottom: 15px;
+      }
+      
+      .add-dialogue-btn {
+          background-color: #27ae60;
+          color: white;
+          padding: 8px 15px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-bottom: 10px;
+      }
+      
+      .remove-dialogue-btn {
+          background-color: #e74c3c;
+          color: white;
+          padding: 4px 8px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+          float: right;
+      }
+      
+      .speaker-select {
+          width: 100px;
+          margin-bottom: 10px;
+      }
+      
+      .dialogue-texts {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+      }
+      
+      .submit-btn {
+          background-color: #27ae60;
+          color: white;
+          padding: 12px 30px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+          width: 100%;
+      }
+      
+      .submit-btn:hover {
+          background-color: #229954;
+      }
+      
+      .hidden {
+          display: none !important;
+      }
+      
+      .empty-state {
+          text-align: center;
+          padding: 40px;
+          color: #7f8c8d;
+          font-style: italic;
+      }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-6">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-globe text-3xl text-blue-600"></i>
-                    <h1 class="text-3xl font-bold text-gray-900">Kho Hội Thoại Song Ngữ</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button id="importBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                        <i class="fas fa-upload mr-2"></i>Nhập Dữ Liệu
-                    </button>
-                    <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-download mr-2"></i>Xuất Dữ Liệu
-                    </button>
-                    <button id="addBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-plus mr-2"></i>Thêm Hội Thoại
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Search and Filter Section -->
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        <input 
-                            type="text" 
-                            id="searchInput"
-                            placeholder="Tìm kiếm theo tiêu đề, nội dung hoặc tag..."
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                    </div>
-                </div>
-                <div class="flex space-x-2">
-                    <select id="categoryFilter" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">Tất cả chủ đề</option>
-                    </select>
-                    <select id="difficultyFilter" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">Mức độ</option>
-                        <option value="beginner">Cơ bản</option>
-                        <option value="intermediate">Trung bình</option>
-                        <option value="advanced">Nâng cao</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- Statistics -->
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-blue-50 p-4 rounded-lg">
-                    <div class="text-blue-600 text-sm font-medium">Tổng hội thoại</div>
-                    <div class="text-2xl font-bold text-blue-900" id="totalCount">0</div>
-                </div>
-                <div class="bg-green-50 p-4 rounded-lg">
-                    <div class="text-green-600 text-sm font-medium">Chủ đề</div>
-                    <div class="text-2xl font-bold text-green-900" id="categoryCount">0</div>
-                </div>
-                <div class="bg-purple-50 p-4 rounded-lg">
-                    <div class="text-purple-600 text-sm font-medium">Tags</div>
-                    <div class="text-2xl font-bold text-purple-900" id="tagCount">0</div>
-                </div>
-                <div class="bg-orange-50 p-4 rounded-lg">
-                    <div class="text-orange-600 text-sm font-medium">Hiển thị</div>
-                    <div class="text-2xl font-bold text-orange-900" id="displayCount">0</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Conversations List -->
-        <div id="conversationsList" class="space-y-6"></div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden bg-white rounded-lg shadow-sm p-12 text-center">
-            <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-600 mb-2">Chưa có hội thoại nào</h3>
-            <p class="text-gray-500 mb-6">Bắt đầu bằng cách thêm hội thoại đầu tiên của bạn</p>
-            <button id="addFirstBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-plus mr-2"></i>Thêm Hội Thoại Đầu Tiên
-            </button>
-        </div>
-    </main>
-
-    <!-- Add/Edit Modal -->
-    <div id="addModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900" id="modalTitle">Thêm Hội Thoại Mới</h2>
-                <button id="closeAddModalBtn" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <form id="conversationForm">
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tiêu đề *</label>
-                            <input type="text" id="title" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Chủ đề *</label>
-                            <input type="text" id="category" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tags (phân cách bằng dấu phẩy)</label>
-                            <input type="text" id="tags" placeholder="ví dụ: giới thiệu, cơ bản, giao tiếp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Mức độ</label>
-                            <select id="difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <option value="beginner">Cơ bản</option>
-                                <option value="intermediate">Trung bình</option>
-                                <option value="advanced">Nâng cao</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Người tham gia</label>
-                            <div class="flex space-x-2">
-                                <input type="text" id="speakerA" placeholder="Người A" value="A" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <input type="text" id="speakerB" placeholder="Người B" value="B" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Dialogue Builder -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Hội thoại tiếng Anh *</label>
-                            <div class="border border-gray-300 rounded-lg p-4 min-h-64 bg-gray-50">
-                                <div id="englishDialogue" class="mb-4"></div>
-                                <div class="dialogue-input">
-                                    <select id="englishSpeaker" class="px-3 py-1 border border-gray-300 rounded text-sm"></select>
-                                    <input type="text" id="englishLine" placeholder="Nhập câu nói..." class="flex-1 px-3 py-1 border border-gray-300 rounded text-sm">
-                                    <button type="button" id="addEnglishLineBtn" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Hội thoại tiếng Việt *</label>
-                            <div class="border border-gray-300 rounded-lg p-4 min-h-64 bg-gray-50">
-                                <div id="vietnameseDialogue" class="mb-4"></div>
-                                <div class="dialogue-input">
-                                    <select id="vietnameseSpeaker" class="px-3 py-1 border border-gray-300 rounded text-sm"></select>
-                                    <input type="text" id="vietnameseLine" placeholder="Nhập câu nói..." class="flex-1 px-3 py-1 border border-gray-300 rounded text-sm">
-                                    <button type="button" id="addVietnameseLineBtn" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Preview Table -->
-                <div id="previewSection"></div>
-                
-                <div class="flex justify-end space-x-4 mt-8">
-                    <button type="button" id="cancelBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                        Hủy
-                    </button>
-                    <button type="button" id="clearDialogueBtn" class="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
-                        <i class="fas fa-eraser mr-2"></i>Xóa Hội Thoại
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-save mr-2"></i><span id="saveButtonText">Lưu</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Import Modal -->
-    <div id="importModal" class="modal">
-        <div class="modal-content max-w-md">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-900">Nhập Dữ Liệu</h2>
-                <button id="closeImportModalBtn" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Chọn file JSON</label>
-                    <input type="file" id="importFile" accept=".json" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                </div>
-                
-                <div class="flex justify-end space-x-4">
-                    <button id="cancelImportBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                        Hủy
-                    </button>
-                    <button id="doImportBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        <i class="fas fa-upload mr-2"></i>Nhập
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ========== DATA & STATE ==========
-        let conversations = [];
-        let editingId = null;
-        let currentFilter = { search: '', category: '', difficulty: '' };
-        let currentDialogue = { english: [], vietnamese: [] };
-
-        const sampleData = [
-            {
-                id: 1,
-                title: "Giới thiệu bản thân",
-                category: "Giao tiếp cơ bản",
-                tags: ["introduction", "basic", "greeting"],
-                difficulty: "beginner",
-                speakerA: "John",
-                speakerB: "Mary",
-                englishDialogue: [
-                    { speaker: "John", text: "Hi, my name is John. Nice to meet you!" },
-                    { speaker: "Mary", text: "Hello John! I'm Mary. Nice to meet you too!" },
-                    { speaker: "John", text: "Where are you from, Mary?" },
-                    { speaker: "Mary", text: "I'm from Vietnam. How about you?" },
-                    { speaker: "John", text: "I'm from the United States. What do you do?" },
-                    { speaker: "Mary", text: "I'm a software developer. And you?" },
-                    { speaker: "John", text: "I'm a teacher. It's great to meet you!" }
-                ],
-                vietnameseDialogue: [
-                    { speaker: "John", text: "Xin chào, tôi tên là John. Rất vui được gặp bạn!" },
-                    { speaker: "Mary", text: "Chào John! Tôi là Mary. Tôi cũng rất vui được gặp bạn!" },
-                    { speaker: "John", text: "Bạn đến từ đâu vậy Mary?" },
-                    { speaker: "Mary", text: "Tôi đến từ Việt Nam. Còn bạn thì sao?" },
-                    { speaker: "John", text: "Tôi đến từ Hoa Kỳ. Bạn làm nghề gì?" },
-                    { speaker: "Mary", text: "Tôi là lập trình viên. Còn bạn?" },
-                    { speaker: "John", text: "Tôi là giáo viên. Rất vui được gặp bạn!" }
-                ],
-                createdAt: "2024-05-01"
-            },
-            {
-                id: 2,
-                title: "Đặt món ăn tại nhà hàng",
-                category: "Nhà hàng",
-                tags: ["food", "restaurant", "ordering"],
-                difficulty: "intermediate",
-                speakerA: "Customer",
-                speakerB: "Waiter",
-                englishDialogue: [
-                    { speaker: "Waiter", text: "Good evening! Welcome to our restaurant. How many people?" },
-                    { speaker: "Customer", text: "Good evening! Table for two, please." },
-                    { speaker: "Waiter", text: "Right this way. Here's your menu." },
-                    { speaker: "Customer", text: "Thank you. Could I have a bowl of pho, please?" },
-                    { speaker: "Waiter", text: "Of course! Would you like it with beef or chicken?" },
-                    { speaker: "Customer", text: "Beef, please. And could you make it less spicy?" },
-                    { speaker: "Waiter", text: "No problem. Anything to drink?" },
-                    { speaker: "Customer", text: "Just water, thank you." }
-                ],
-                vietnameseDialogue: [
-                    { speaker: "Waiter", text: "Chào buổi tối! Chào mừng đến nhà hàng. Mấy người ạ?" },
-                    { speaker: "Customer", text: "Chào buổi tối! Bàn cho hai người." },
-                    { speaker: "Waiter", text: "Mời bạn đi theo. Đây là thực đơn ạ." },
-                    { speaker: "Customer", text: "Cảm ơn. Cho tôi một tô phở được không?" },
-                    { speaker: "Waiter", text: "Dạ được ạ! Bạn muốn phở bò hay phở gà?" },
-                    { speaker: "Customer", text: "Phở bò. Và làm ơn làm ít cay hơn." },
-                    { speaker: "Waiter", text: "Dạ không sao ạ. Bạn uống gì không?" },
-                    { speaker: "Customer", text: "Chỉ nước lọc thôi, cảm ơn." }
-                ],
-                createdAt: "2024-05-02"
-            }
-        ];
-
-        // ========== INIT ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            renderConversations();
-            updateStatistics();
-            updateCategoryFilter();
-            updateSpeakerOptions();
-            setupEventListeners();
-        });
-
-        // ========== DATA ==========
-        function loadData() {
-            const savedData = localStorage.getItem('bilingual_conversations');
-            if (savedData) {
-                conversations = JSON.parse(savedData);
-            } else {
-                conversations = sampleData;
-                saveData();
-            }
-        }
-        
-        function saveData() {
-            localStorage.setItem('bilingual_conversations', JSON.stringify(conversations));
-        }
-
-        // ========== MODAL ==========
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('show');
-            if (modalId === 'addModal') {
-                resetForm();
-            }
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
-            if (modalId === 'addModal') {
-                editingId = null;
-                resetForm();
-            }
-        }
-
-        // ========== FORM ==========
-        function resetForm() {
-            document.getElementById('conversationForm').reset();
-            document.getElementById('modalTitle').textContent = editingId ? 'Chỉnh Sửa Hội Thoại' : 'Thêm Hội Thoại Mới';
-            document.getElementById('saveButtonText').textContent = editingId ? 'Cập Nhật' : 'Lưu';
-            currentDialogue = { english: [], vietnamese: [] };
-            renderDialogueBuilder();
-            updateSpeakerOptions();
-            renderPreviewTable();
-        }
-
-        // ========== DIALOGUE BUILDER ==========
-        function addDialogueLine(language) {
-            const speakerSelect = document.getElementById(language + 'Speaker');
-            const lineInput = document.getElementById(language + 'Line');
-            const speaker = speakerSelect.value;
-            const text = lineInput.value.trim();
-            
-            if (!text) {
-                showNotification('Vui lòng nhập nội dung câu nói!', 'error');
-                return;
-            }
-            
-            currentDialogue[language].push({ speaker, text });
-            lineInput.value = '';
-            renderDialogueBuilder();
-            renderPreviewTable();
-        }
-        
-        function removeDialogueLine(language, index) {
-            currentDialogue[language].splice(index, 1);
-            renderDialogueBuilder();
-            renderPreviewTable();
-        }
-        
-        function clearDialogue() {
-            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ hội thoại?')) {
-                currentDialogue = { english: [], vietnamese: [] };
-                renderDialogueBuilder();
-                renderPreviewTable();
-            }
-        }
-        
-        function renderDialogueBuilder() {
-            renderDialogueLines('english');
-            renderDialogueLines('vietnamese');
-        }
-        
-        function renderDialogueLines(language) {
-            const container = document.getElementById(language + 'Dialogue');
-            const lines = currentDialogue[language];
-            const speakerA = document.getElementById('speakerA').value || 'A';
-            
-            container.innerHTML = lines.map((line, index) => `
-                <div class="dialogue-line speaker-${line.speaker === speakerA ? 'a' : 'b'}">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <strong class="text-sm font-medium">${line.speaker}:</strong>
-                            <span class="ml-2">${line.text}</span>
-                        </div>
-                        <button type="button" data-remove="${language}-${index}" class="ml-2 text-red-500 hover:text-red-700">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function updateSpeakerOptions() {
-            const speakerA = document.getElementById('speakerA').value || 'A';
-            const speakerB = document.getElementById('speakerB').value || 'B';
-            
-            ['english', 'vietnamese'].forEach(lang => {
-                const select = document.getElementById(lang + 'Speaker');
-                select.innerHTML = `
-                    <option value="${speakerA}">${speakerA}</option>
-                    <option value="${speakerB}">${speakerB}</option>
-                `;
-            });
-        }
-        
-        function renderPreviewTable() {
-            const preview = document.getElementById('previewSection');
-            const en = currentDialogue.english;
-            const vi = currentDialogue.vietnamese;
-            const maxRows = Math.max(en.length, vi.length);
-            
-            if (maxRows === 0) {
-                preview.innerHTML = '';
-                return;
-            }
-            
-            let html = `<table class="preview-table">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tiếng Anh</th>
-                        <th>Tiếng Việt</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-            
-            for (let i = 0; i < maxRows; i++) {
-                html += `<tr>
-                    <td>${i + 1}</td>
-                    <td>${en[i] ? `<b>${en[i].speaker}:</b> ${en[i].text}` : ''}</td>
-                    <td>${vi[i] ? `<b>${vi[i].speaker}:</b> ${vi[i].text}` : ''}</td>
-                </tr>`;
-            }
-            
-            html += '</tbody></table>';
-            preview.innerHTML = html;
-        }
-
-        // ========== CRUD ==========
-        function saveConversation(event) {
-            event.preventDefault();
-            
-            if (currentDialogue.english.length === 0 || currentDialogue.vietnamese.length === 0) {
-                showNotification('Vui lòng thêm ít nhất một câu hội thoại cho mỗi ngôn ngữ!', 'error');
-                return;
-            }
-            
-            const formData = {
-                title: document.getElementById('title').value,
-                category: document.getElementById('category').value,
-                tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
-                difficulty: document.getElementById('difficulty').value,
-                speakerA: document.getElementById('speakerA').value || 'A',
-                speakerB: document.getElementById('speakerB').value || 'B',
-                englishDialogue: [...currentDialogue.english],
-                vietnameseDialogue: [...currentDialogue.vietnamese],
-                createdAt: new Date().toISOString().split('T')[0]
-            };
-            
-            if (editingId) {
-                const index = conversations.findIndex(conv => conv.id === editingId);
-                conversations[index] = { ...conversations[index], ...formData };
-            } else {
-                const newConversation = {
-                    id: Date.now(),
-                    ...formData
-                };
-                conversations.push(newConversation);
-            }
-            
-            saveData();
+<body>
+  <header>
+      <div class="container">
+          <h1>📚 Kho Hội Thoại Song Ngữ</h1>
+      </div>
+  </header>
+  
+  <div class="container">
+      <div class="controls">
+          <input type="text" class="search-box" id="searchBox" placeholder="Tìm kiếm hội thoại...">
+          
+          <div class="topic-tabs">
+              <div class="topic-tab active" data-topic="">📋 Tất cả</div>
+              <div class="topic-tab" data-topic="business">💼 Business</div>
+              <div class="topic-tab" data-topic="travel">✈️ Travel</div>
+              <div class="topic-tab" data-topic="daily">🏠 Daily Life</div>
+              <div class="topic-tab" data-topic="education">🎓 Education</div>
+          </div>
+          
+          <div class="filters">
+              <select id="levelFilter">
+                  <option value="">Tất cả cấp độ</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+              </select>
+              
+              <button class="add-btn" onclick="openModal()">+ Thêm hội thoại mới</button>
+          </div>
+      </div>
+      
+      <div id="conversationsContainer">
+          <!-- Business Section -->
+          <div class="topic-section" data-topic="business">
+              <div class="topic-header">
+                  <div class="topic-title">💼 Business</div>
+                  <div class="topic-count" id="business-count">0 hội thoại</div>
+              </div>
+              <div class="conversations-list" id="business-list">
+                  <!-- Sample conversation -->
+                  <div class="conversation-card" data-topic="business" data-level="intermediate">
+                      <div class="card-header">
+                          <h3 class="card-title">Meeting Introduction</h3>
+                          <span class="level-badge level-intermediate">Intermediate</span>
+                      </div>
+                      <div class="characters">
+                          <div class="character character-a">👨‍💼 John (Manager)</div>
+                          <div class="character character-b">👩‍💼 Sarah (New Employee)</div>
+                      </div>
+                      <div class="dialogue-container">
+                          <div class="dialogue-line dialogue-a">
+                              <div class="speaker-name speaker-a">👨‍💼 John:</div>
+                              <div class="dialogue-content">
+                                  <div class="lang-text english-text">Good morning everyone. Let's begin today's meeting.</div>
+                                  <div class="lang-text vietnamese-text">Chào buổi sáng mọi người. Hãy bắt đầu cuộc họp hôm nay.</div>
+                              </div>
+                          </div>
+                          <div class="dialogue-line dialogue-b">
+                              <div class="speaker-name speaker-b">👩‍💼 Sarah:</div>
+                              <div class="dialogue-content">
+                                  <div class="lang-text english-text">Thank you for welcoming me to the team.</div>
+                                  <div class="lang-text vietnamese-text">Cảm ơn vì đã chào đón tôi vào nhóm.</div>
+                              </div>
+                          </div>
+                          <div class="dialogue-line dialogue-a">
+                              <div class="speaker-name speaker-a">👨‍💼 John:</div>
+                              <div class="dialogue-content">
+                                  <div class="lang-text english-text">We're excited to have you here. Let's discuss today's agenda.</div>
+                                  <div class="lang-text vietnamese-text">Chúng tôi rất vui khi có bạn ở đây. Hãy thảo luận về chương trình hôm nay.</div>
+                              </div>
+                          </div>
+                          <div class="dialogue-line dialogue-b">
+                              <div class="speaker-name speaker-b">👩‍💼 Sarah:</div>
+                              <div class="dialogue-content">
+                                  <div class="lang-text english-text">I'm looking forward to contributing to the team's success.</div>
+                                  <div class="lang-text vietnamese-text">Tôi mong muốn được đóng góp vào thành công của nhóm.</div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Travel Section -->
+          <div class="topic-section" data-topic="travel">
+              <div class="topic-header">
+                  <div class="topic-title">✈️ Travel</div>
+                  <div class="topic-count" id="travel-count">0 hội thoại</div>
+              </div>
+              <div class="conversations-list" id="travel-list">
+                  <!-- Sample conversation -->
+                  <div class="conversation-card" data-topic="travel" data-level="beginner">
+                      <div class="card-header">
+                          <h3 class="card-title">At the Airport</h3>
+                          <span class="level-badge level-beginner">Beginner</span>
+                      </div>
+                      <div class="characters">
+                          <div class="character character-a">🧳 Tourist</div>
+                          <div class="character character-b">👩‍✈️ Staff</div>
+                      </div>
+                      <div class="dialogue-container">
+                          <div class="dialogue-line dialogue-a">
+                              <div class="speaker-name speaker-a">🧳 Tourist:</div>
+                              <div class="dialogue-content">
+                                  <div class="lang-text english-text">Excuse me, where is the check-in counter for Vietnam Airlines?</div>
+                                  <div class="lang-text vietnamese-text">Xin lỗi, quầy check-in của Vietnam Airlines ở đâu?</div>
+                              </div>
+                          </div>
+                          <div class="dialogue-line dialogue-b">
+                              <div class="speaker-name speaker-b">👩‍✈️ Staff:</div>
+                              <div class="dialogue-content">
+                                  <div class="lang-text english-text">It's on the second floor, counter number 15-20.</div>
+                                  <div class="lang-text vietnamese-text">Ở tầng hai, quầy số 15-20 ạ.</div>
+                              </div>
+                          </div>
+                          <div class="dialogue-line dialogue-a">
+                              <div class="speaker-name speaker-a">🧳 Tourist:</div>
+                              <div class="dialogue-content">
+                                  <div class="lang-text english-text">Thank you very much!</div>
+                                  <div class="lang-text vietnamese-text">Cảm ơn bạn rất nhiều!</div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Daily Life Section -->
+          <div class="topic-section" data-topic="daily">
+              <div class="topic-header">
+                  <div class="topic-title">🏠 Daily Life</div>
+                  <div class="topic-count" id="daily-count">0 hội thoại</div>
+              </div>
+              <div class="conversations-list" id="daily-list">
+                  <div class="empty-state">Chưa có hội thoại nào trong chủ đề này</div>
+              </div>
+          </div>
+          
+          <!-- Education Section -->
+          <div class="topic-section" data-topic="education">
+              <div class="topic-header">
+                  <div class="topic-title">🎓 Education</div>
+                  <div class="topic-count" id="education-count">0 hội thoại</div>
+              </div>
+              <div class="conversations-list" id="education-list">
+                  <div class="empty-state">Chưa có hội thoại nào trong chủ đề này</div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <!-- Modal for adding new conversation -->
+  <div id="addModal" class="modal">
+      <div class="modal-content">
+          <span class="close-btn" onclick="closeModal()">&times;</span>
+          <h2>Thêm hội thoại mới</h2>
+          
+          <form id="conversationForm">
+              <div class="form-group">
+                  <label>Tiêu đề:</label>
+                  <input type="text" id="title" required>
+              </div>
+              
+              <div class="form-group">
+                  <label>Chủ đề:</label>
+                  <select id="topic" required>
+                      <option value="business">Business</option>
+                      <option value="travel">Travel</option>
+                      <option value="daily">Daily Life</option>
+                      <option value="education">Education</option>
+                  </select>
+              </div>
+              
+              <div class="form-group">
+                  <label>Cấp độ:</label>
+                  <select id="level" required>
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                  </select>
+              </div>
+              
+              <div class="form-group">
+                  <label>Tên nhân vật:</label>
+                  <div class="character-names">
+                      <input type="text" id="characterA" placeholder="Nhân vật A" required>
+                      <input type="text" id="characterB" placeholder="Nhân vật B" required>
+                  </div>
+              </div>
+              
+              <div class="form-group">
+                  <label>Đoạn hội thoại:</label>
+                  <button type="button" class="add-dialogue-btn" onclick="addDialogueLine()">+ Thêm câu thoại</button>
+                  <div class="dialogue-inputs" id="dialogueInputs">
+                      <!-- Dialogue lines will be added here -->
+                  </div>
+              </div>
+              
+              <button type="submit" class="submit-btn">Lưu hội thoại</button>
+          </form>
+      </div>
+  </div>
+  
+  <script>
+      // Store conversations in localStorage
+      let conversations = JSON.parse(localStorage.getItem('conversations')) || [];
+      let dialogueCounter = 0;
+      let currentTopicFilter = '';
+      
+      // Initialize
+      document.addEventListener('DOMContentLoaded', function() {
+          updateTopicCounts();
+          loadSavedConversations();
+      });
+      
+      // Topic tab functionality
+      document.querySelectorAll('.topic-tab').forEach(tab => {
+          tab.addEventListener('click', function() {
+              // Remove active class from all tabs
+              document.querySelectorAll('.topic-tab').forEach(t => t.classList.remove('active'));
+              // Add active class to clicked tab
+              this.classList.add('active');
+              
+              currentTopicFilter = this.dataset.topic;
+              filterConversations();
+          });
+      });
+      
+      // Search functionality
+      document.getElementById('searchBox').addEventListener('input', filterConversations);
+      document.getElementById('levelFilter').addEventListener('change', filterConversations);
+      
+      function filterConversations() {
+          const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+          const levelFilter = document.getElementById('levelFilter').value;
+          
+          // Show/hide topic sections
+          document.querySelectorAll('.topic-section').forEach(section => {
+              const sectionTopic = section.dataset.topic;
+              
+              if (currentTopicFilter === '' || currentTopicFilter === sectionTopic) {
+                  section.style.display = 'block';
+                  
+                  // Filter conversations within this section
+                  const cards = section.querySelectorAll('.conversation-card');
+                  let visibleCount = 0;
+                  
+                  cards.forEach(card => {
+                      const title = card.querySelector('.card-title').textContent.toLowerCase();
+                      const content = card.textContent.toLowerCase();
+                      const level = card.dataset.level;
+                      
+                      const matchesSearch = content.includes(searchTerm);
+                      const matchesLevel = !levelFilter || level === levelFilter;
+                      
+                      if (matchesSearch && matchesLevel) {
+                          card.style.display = 'block';
+                          visibleCount++;
+                      } else {
+                          card.style.display = 'none';
+                      }
+                  });
+                  
+                  // Show/hide empty state
+                  const emptyState = section.querySelector('.empty-state');
+                  const conversationsList = section.querySelector('.conversations-list');
+                  
+                  if (visibleCount === 0 && !emptyState) {
+                      conversationsList.innerHTML = '<div class="empty-state">Không tìm thấy hội thoại nào</div>';
+                  } else if (visibleCount > 0 && emptyState) {
+                      emptyState.style.display = 'none';
+                  }
+              } else {
+                  section.style.display = 'none';
+              }
+          });
+      }
+      
+      function updateTopicCounts() {
+          const topics = ['business', 'travel', 'daily', 'education'];
+          
+          topics.forEach(topic => {
+              const count = document.querySelectorAll(`[data-topic="${topic}"] .conversation-card`).length;
+              const countElement = document.getElementById(`${topic}-count`);
+              if (countElement) {
+                  countElement.textContent = `${count} hội thoại`;
+              }
+          });
+      }
+      
+      // Modal functions
+      function openModal() {
+          document.getElementById('addModal').style.display = 'block';
+          // Add initial dialogue line
+          if (document.getElementById('dialogueInputs').children.length === 0) {
+              addDialogueLine();
+          }
+      }
+      
+      function closeModal() {
+          document.getElementById('addModal').style.display = 'none';
+          document.getElementById('conversationForm').reset();
+          document.getElementById('dialogueInputs').innerHTML = '';
+          dialogueCounter = 0;
+      }
+      
+      // Add dialogue line input
+      function addDialogueLine() {
+          const container = document.getElementById('dialogueInputs');
+          const lineDiv = document.createElement('div');
+          lineDiv.className = 'dialogue-input';
+          lineDiv.innerHTML = `
+              <button type="button" class="remove-dialogue-btn" onclick="removeDialogueLine(this)">Xóa</button>
+              <select class="speaker-select" name="speaker_${dialogueCounter}">
+                  <option value="A">Nhân vật A</option>
+                  <option value="B">Nhân vật B</option>
+              </select>
+              <div class="dialogue-texts">
+                  <textarea name="english_${dialogueCounter}" placeholder="Nội dung tiếng Anh" required></textarea>
+                  <textarea name="vietnamese_${dialogueCounter}" placeholder="Nội dung tiếng Việt" required></textarea>
+              </div>
+          `;
+          container.appendChild(lineDiv);
+          dialogueCounter++;
+      }
+      
+      function removeDialogueLine(button) {
+          button.parentElement.remove();
+      }
+      
+      // Form submission
+      document.getElementById('conversationForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const title = document.getElementById('title').value;
+          const topic = document.getElementById('topic').value;
+          const level = document.getElementById('level').value;
+          const characterA = document.getElementById('characterA').value;
+          const characterB = document.getElementById('characterB').value;
+          
+          // Collect dialogue lines
+          const dialogues = [];
+          const dialogueInputs = document.querySelectorAll('.dialogue-input');
+          
+          dialogueInputs.forEach((input, index) => {
+              const speaker = input.querySelector('select').value;
+              const english = input.querySelector('textarea[name^="english"]').value;
+              const vietnamese = input.querySelector('textarea[name^="vietnamese"]').value;
+              
+              dialogues.push({
+                  speaker: speaker,
+                  english: english,
+                  vietnamese: vietnamese
+              });
+          });
+          
+          const newConversation = {
+              id: Date.now(),
+              title: title,
+              topic: topic,
+              level: level,
+              characterA: characterA,
+              characterB: characterB,
+              dialogues: dialogues
+          };
+          
+          conversations.push(newConversation);
+          localStorage.setItem('conversations', JSON.stringify(conversations));
+          
+          addConversationCard(newConversation);
+          updateTopicCounts();
+          closeModal();
+          
+          alert('Đã thêm hội thoại thành công!');
+      });
+      
+      // Add conversation card to appropriate topic section
+      function addConversationCard(conversation) {
+          const topicList = document.getElementById(`${conversation.topic}-list`);
+          
+          // Remove empty state if exists
+          const emptyState = topicList.querySelector('.empty-state');
+          if (emptyState) {
+              emptyState.remove();
+          }
+          
+          const card = document.createElement('div');
+          card.className = 'conversation-card';
+          card.dataset.topic = conversation.topic;
+          card.dataset.level = conversation.level;
+          
+          const levelLabels = {
+              beginner: 'Beginner',
+              intermediate: 'Intermediate',
+              advanced: 'Advanced'
+          };
+          
+          // Generate dialogue HTML
+          let dialogueHTML = '';
+          conversation.dialogues.forEach((dialogue, index) => {
+              const isCharacterA = dialogue.speaker === 'A';
+              const characterName = isCharacterA ? conversation.characterA : conversation.characterB;
+              const dialogueClass = isCharacterA ? 'dialogue-a' : 'dialogue-b';
+              const speakerClass = isCharacterA ? 'speaker-a' : 'speaker-b';
+              const icon = isCharacterA ? '👤' : '👤';
+              
+              dialogueHTML += `
+                  <div class="dialogue-line ${dialogueClass}">
+                      <div class="speaker-name ${speakerClass}">${icon} ${characterName}:</div>
+                      <div class="dialogue-content">
+                          <div class="lang-text english-text">${dialogue.english}</div>
