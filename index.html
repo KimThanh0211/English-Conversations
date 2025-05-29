@@ -94,7 +94,7 @@
       .topic-tab-btn[data-topic="education"] { background:#f39c12; }
       .conversations-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(1000px, 1fr));
         gap: 20px;
       }
       .conversation-card {
@@ -153,193 +153,205 @@
       .character-b {
           color: #e74c3c;
       }
+
+      /* --- DÒNG CSS HỘI THOẠI THẲNG HÀNG --- */
       .dialogue-container {
-          max-height: 400px;
-          overflow-y: auto;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 20px;
+        background: #fafbfc;
       }
       .dialogue-line {
-          margin-bottom: 15px;
-          padding: 12px;
-          border-radius: 8px;
-          position: relative;
+        display: grid;
+        grid-template-columns: 120px 1fr 1fr;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 14px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .dialogue-a, .dialogue-b {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 15px;
+        line-height: 1.5;
       }
       .dialogue-a {
-          background-color: #e3f2fd;
-          border-left: 4px solid #3498db;
-          margin-right: 20px;
+        background-color: #e3f2fd;
+        border-left: 4px solid #3498db;
       }
       .dialogue-b {
-          background-color: #ffebee;
-          border-left: 4px solid #e74c3c;
-          margin-left: 20px;
+        background-color: #ffebee;
+        border-left: 4px solid #e74c3c;
       }
       .speaker-name {
-          font-weight: bold;
-          font-size: 14px;
-          margin-bottom: 5px;
-      }
-      .speaker-a {
-          color: #3498db;
+        font-weight: bold;
+        font-size: 15px;
+        white-space: nowrap;
+        color: #3498db;
       }
       .speaker-b {
-          color: #e74c3c;
-      }
-      .dialogue-content {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-      }
-      .lang-text {
-          padding: 8px;
-          border-radius: 4px;
-          line-height: 1.4;
-      }
-      .english-text {
-          background-color: rgba(255,255,255,0.7);
-          border: 1px solid #ddd;
+        color: #e74c3c;
       }
       .vietnamese-text {
-          background-color: rgba(255,255,255,0.7);
-          border: 1px solid #ddd;
-          font-style: italic;
+        font-style: italic;
       }
-      .modal {
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0,0,0,0.5);
-          z-index: 1000;
-      }
-      .modal-content {
-          background: white;
-          width: 90%;
-          max-width: 1100px;
-          margin: 30px auto;
-          padding: 40px;
-          border-radius: 8px;
-          position: relative;
-          max-height: 90vh;
-          overflow-y: auto;
-      }
-      .close-btn {
-          position: absolute;
-          top: 10px;
-          right: 15px;
-          font-size: 28px;
-          cursor: pointer;
-          color: #999;
-      }
-      .form-group {
-          margin-bottom: 20px;
-      }
-      .form-group label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: bold;
-      }
-      .form-group input, .form-group textarea, .form-group select {
-          width: 100%;
+      @media (max-width: 700px) {
+        .conversation-card {
           padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 14px;
+        }
+        .dialogue-line {
+          grid-template-columns: 90px 1fr 1fr;
+          gap: 6px;
+        }
       }
-      .character-names {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 15px;
+      @media (max-width: 500px) {
+        .dialogue-line {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+        .speaker-name, .speaker-b {
+          margin-bottom: 2px;
+        }
       }
-      .dialogue-input {
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          padding: 15px;
-          margin-bottom: 15px;
-      }
-      .dialogue-inputs {
-          max-height: 300px;
-          overflow-y: auto;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          padding: 15px;
-          margin-bottom: 15px;
-      }
-      .add-dialogue-btn {
-          background-color: #27ae60;
-          color: white;
-          padding: 8px 15px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          margin-bottom: 10px;
-      }
-      .remove-dialogue-btn {
-          background-color: #e74c3c;
-          color: white;
-          padding: 4px 8px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 12px;
-          float: right;
-      }
-      .speaker-select {
-          width: 100px;
-          margin-bottom: 10px;
-      }
-      .dialogue-texts {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-      }
-      .submit-btn {
-          background-color: #27ae60;
-          color: white;
-          padding: 12px 30px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 16px;
-          width: 100%;
-      }
-      .submit-btn:hover {
-          background-color: #229954;
-      }
-      .card-actions {
-          margin-top: 10px;
-          text-align: right;
-      }
-      .edit-btn {
-          background: #f39c12;
-          color: white;
-          border: none;
-          padding: 6px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-          margin-right: 8px;
-      }
-      .delete-btn {
-          background: #e74c3c;
-          color: white;
-          border: none;
-          padding: 6px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-          margin-right: 8px;
-      }
-      .duplicate-btn {
-          background: #2980b9;
-          color: white;
-          border: none;
-          padding: 6px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-      }
+      /* --- KẾT THÚC CSS HỘI THOẠI THẲNG HÀNG --- */
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    .modal-content {
+        background: white;
+        width: 90%;
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 40px;
+        border-radius: 8px;
+        position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        cursor: pointer;
+        color: #999;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    .character-names {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    .dialogue-input {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .dialogue-inputs {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .add-dialogue-btn {
+        background-color: #27ae60;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .remove-dialogue-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        float: right;
+    }
+    .speaker-select {
+        width: 100px;
+        margin-bottom: 10px;
+    }
+    .dialogue-texts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .submit-btn {
+        background-color: #27ae60;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+    }
+    .submit-btn:hover {
+        background-color: #229954;
+    }
+    .card-actions {
+        margin-top: 10px;
+        text-align: right;
+    }
+    .edit-btn {
+        background: #f39c12;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 8px;
+    }
+    .delete-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 8px;
+    }
+    .duplicate-btn {
+        background: #2980b9;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -643,23 +655,21 @@
               advanced: 'Advanced'
           };
           
-          // Generate dialogue HTML
+          // Generate dialogue HTML (thẳng hàng 3 cột)
           let dialogueHTML = '';
           conversation.dialogues.forEach((dialogue, index) => {
               const isCharacterA = dialogue.speaker === 'A';
               const characterName = isCharacterA ? conversation.characterA : conversation.characterB;
               const dialogueClass = isCharacterA ? 'dialogue-a' : 'dialogue-b';
-              const speakerClass = isCharacterA ? 'speaker-a' : 'speaker-b';
+              const speakerClass = isCharacterA ? '' : 'speaker-b';
               
               dialogueHTML += `
-                  <div class="dialogue-line ${dialogueClass}">
-                      <div class="speaker-name ${speakerClass}">${characterName}:</div>
-                      <div class="dialogue-content">
-                          <div class="lang-text english-text">${dialogue.english}</div>
-                          <div class="lang-text vietnamese-text">${dialogue.vietnamese}</div>
-                      </div>
-                  </div>
-              `;
+                <div class="dialogue-line">
+                    <span class="speaker-name ${speakerClass}">${characterName}:</span>
+                    <span class="${dialogueClass}">${dialogue.english}</span>
+                    <span class="${dialogueClass} vietnamese-text">${dialogue.vietnamese}</span>
+                </div>
+            `;
           });
           
           card.innerHTML = `
