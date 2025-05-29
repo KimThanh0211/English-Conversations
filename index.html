@@ -10,30 +10,25 @@
           padding: 0;
           box-sizing: border-box;
       }
-      
       body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
           background-color: #f5f5f5;
           color: #333;
       }
-      
       .container {
-          max-width: 1400px;
-          margin: 0 auto;
-          padding: 20px;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 20px;
       }
-      
       header {
           background-color: #2c3e50;
           color: white;
           padding: 20px 0;
           margin-bottom: 30px;
       }
-      
       h1 {
           text-align: center;
       }
-      
       .controls {
           background: white;
           padding: 20px;
@@ -41,7 +36,6 @@
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           margin-bottom: 20px;
       }
-      
       .search-box {
           width: 100%;
           padding: 12px;
@@ -50,229 +44,168 @@
           border-radius: 4px;
           margin-bottom: 15px;
       }
-      
       .filters {
           display: flex;
           gap: 15px;
           flex-wrap: wrap;
-          align-items: center;
       }
-      
-      .topic-tabs {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 15px;
-      }
-      
-      .topic-tab {
-          padding: 10px 20px;
-          border: 2px solid #3498db;
-          background: white;
-          color: #3498db;
-          border-radius: 25px;
-          cursor: pointer;
-          transition: all 0.3s;
-          font-weight: bold;
-      }
-      
-      .topic-tab.active {
-          background: #3498db;
-          color: white;
-      }
-      
-      .topic-tab:hover {
-          background: #2980b9;
-          color: white;
-          border-color: #2980b9;
-      }
-      
       select {
           padding: 8px 12px;
           border: 1px solid #ddd;
           border-radius: 4px;
           font-size: 14px;
       }
-      
       .add-btn {
-          background-color: #27ae60;
+          background-color: #3498db;
           color: white;
           padding: 10px 20px;
           border: none;
           border-radius: 4px;
           cursor: pointer;
           font-size: 16px;
-          margin-left: auto;
       }
-      
       .add-btn:hover {
-          background-color: #229954;
+          background-color: #2980b9;
       }
-      
-      .topic-section {
-          margin-bottom: 40px;
+      .topic-tabs {
+          display:flex;
+          gap:16px;
+          margin-bottom:20px;
+          overflow-x:auto;
       }
-      
-      .topic-header {
-          display: flex;
-          align-items: center;
-          margin-bottom: 20px;
-          padding: 15px 20px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      .topic-tabs::-webkit-scrollbar { display: none; }
+      .topic-tab-btn {
+          padding:8px 20px;
+          border:none;
+          border-radius:20px;
+          background:#2c3e50;
+          color:white;
+          cursor:pointer;
+          opacity:0.7;
+          transition: opacity 0.2s;
       }
-      
-      .topic-title {
-          font-size: 24px;
-          font-weight: bold;
-          margin-right: 15px;
+      .topic-tab-btn.active, .topic-tab-btn:focus {
+          opacity:1;
+          outline: none;
       }
-      
-      .topic-count {
-          background: rgba(255,255,255,0.2);
-          padding: 5px 12px;
-          border-radius: 15px;
-          font-size: 14px;
+      .topic-tab-btn[data-topic="business"] { background:#e74c3c; }
+      .topic-tab-btn[data-topic="travel"] { background:#3498db; }
+      .topic-tab-btn[data-topic="daily"] { background:#27ae60; }
+      .topic-tab-btn[data-topic="education"] { background:#f39c12; }
+      .conversations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
+        gap: 20px;
       }
-      
-      .conversations-list {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-      }
-      
       .conversation-card {
           background: white;
-          border-radius: 12px;
-          padding: 25px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          transition: all 0.3s;
-          border-left: 5px solid #3498db;
+          border-radius: 8px;
+          padding: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          transition: transform 0.2s;
       }
-      
       .conversation-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.15);
       }
-      
       .card-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
+          margin-bottom: 15px;
       }
-      
       .card-title {
-          font-size: 20px;
+          font-size: 18px;
           font-weight: bold;
           color: #2c3e50;
       }
-      
+      .topic-badge {
+          background-color: #e74c3c;
+          color: white;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+      }
       .level-badge {
           background-color: #f39c12;
           color: white;
-          padding: 6px 15px;
+          padding: 4px 12px;
           border-radius: 20px;
-          font-size: 13px;
-          font-weight: bold;
+          font-size: 12px;
+          margin-left: 8px;
       }
-      
-      .level-beginner { background-color: #27ae60; }
-      .level-intermediate { background-color: #f39c12; }
-      .level-advanced { background-color: #e74c3c; }
-      
       .characters {
           display: flex;
-          justify-content: center;
-          gap: 50px;
-          margin-bottom: 20px;
-          padding: 15px;
-          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-          border-radius: 8px;
+          justify-content: space-between;
+          margin-bottom: 15px;
+          padding: 10px;
+          background-color: #ecf0f1;
+          border-radius: 4px;
       }
-      
       .character {
           text-align: center;
           font-weight: bold;
           color: #2c3e50;
-          font-size: 16px;
       }
-      
       .character-a {
           color: #3498db;
       }
-      
       .character-b {
           color: #e74c3c;
       }
-      
       .dialogue-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-          gap: 15px;
-          max-height: none;
-      }
-      
-      .dialogue-line {
+          max-height: 400px;
+          overflow-y: auto;
+          border: 1px solid #ddd;
+          border-radius: 4px;
           padding: 15px;
-          border-radius: 12px;
+      }
+      .dialogue-line {
+          margin-bottom: 15px;
+          padding: 12px;
+          border-radius: 8px;
           position: relative;
-          margin-bottom: 10px;
       }
-      
       .dialogue-a {
-          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+          background-color: #e3f2fd;
           border-left: 4px solid #3498db;
+          margin-right: 20px;
       }
-      
       .dialogue-b {
-          background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+          background-color: #ffebee;
           border-left: 4px solid #e74c3c;
+          margin-left: 20px;
       }
-      
       .speaker-name {
           font-weight: bold;
-          font-size: 15px;
-          margin-bottom: 8px;
-          display: flex;
-          align-items: center;
+          font-size: 14px;
+          margin-bottom: 5px;
       }
-      
       .speaker-a {
-          color: #2980b9;
+          color: #3498db;
       }
-      
       .speaker-b {
-          color: #c0392b;
+          color: #e74c3c;
       }
-      
       .dialogue-content {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
       }
-      
       .lang-text {
-          padding: 10px 12px;
-          border-radius: 8px;
-          line-height: 1.5;
-          font-size: 15px;
+          padding: 8px;
+          border-radius: 4px;
+          line-height: 1.4;
       }
-      
       .english-text {
-          background-color: rgba(255,255,255,0.8);
-          border: 1px solid rgba(0,0,0,0.1);
-          font-weight: 500;
+          background-color: rgba(255,255,255,0.7);
+          border: 1px solid #ddd;
       }
-      
       .vietnamese-text {
-          background-color: rgba(255,255,255,0.6);
-          border: 1px solid rgba(0,0,0,0.1);
+          background-color: rgba(255,255,255,0.7);
+          border: 1px solid #ddd;
           font-style: italic;
-          color: #555;
       }
-      
       .modal {
           display: none;
           position: fixed;
@@ -283,7 +216,6 @@
           background-color: rgba(0,0,0,0.5);
           z-index: 1000;
       }
-      
       .modal-content {
           background: white;
           width: 90%;
@@ -295,7 +227,6 @@
           max-height: 90vh;
           overflow-y: auto;
       }
-      
       .close-btn {
           position: absolute;
           top: 10px;
@@ -304,17 +235,14 @@
           cursor: pointer;
           color: #999;
       }
-      
       .form-group {
           margin-bottom: 20px;
       }
-      
       .form-group label {
           display: block;
           margin-bottom: 5px;
           font-weight: bold;
       }
-      
       .form-group input, .form-group textarea, .form-group select {
           width: 100%;
           padding: 10px;
@@ -322,20 +250,17 @@
           border-radius: 4px;
           font-size: 14px;
       }
-      
       .character-names {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 15px;
       }
-      
       .dialogue-input {
           border: 1px solid #ddd;
           border-radius: 4px;
           padding: 15px;
           margin-bottom: 15px;
       }
-      
       .dialogue-inputs {
           max-height: 300px;
           overflow-y: auto;
@@ -344,7 +269,6 @@
           padding: 15px;
           margin-bottom: 15px;
       }
-      
       .add-dialogue-btn {
           background-color: #27ae60;
           color: white;
@@ -354,7 +278,6 @@
           cursor: pointer;
           margin-bottom: 10px;
       }
-      
       .remove-dialogue-btn {
           background-color: #e74c3c;
           color: white;
@@ -365,18 +288,15 @@
           font-size: 12px;
           float: right;
       }
-      
       .speaker-select {
           width: 100px;
           margin-bottom: 10px;
       }
-      
       .dialogue-texts {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 10px;
       }
-      
       .submit-btn {
           background-color: #27ae60;
           color: white;
@@ -387,20 +307,38 @@
           font-size: 16px;
           width: 100%;
       }
-      
       .submit-btn:hover {
           background-color: #229954;
       }
-      
-      .hidden {
-          display: none !important;
+      .card-actions {
+          margin-top: 10px;
+          text-align: right;
       }
-      
-      .empty-state {
-          text-align: center;
-          padding: 40px;
-          color: #7f8c8d;
-          font-style: italic;
+      .edit-btn {
+          background: #f39c12;
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-right: 8px;
+      }
+      .delete-btn {
+          background: #e74c3c;
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-right: 8px;
+      }
+      .duplicate-btn {
+          background: #2980b9;
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
       }
   </style>
 </head>
@@ -415,15 +353,15 @@
       <div class="controls">
           <input type="text" class="search-box" id="searchBox" placeholder="Tìm kiếm hội thoại...">
           
-          <div class="topic-tabs">
-              <div class="topic-tab active" data-topic="">📋 Tất cả</div>
-              <div class="topic-tab" data-topic="business">💼 Business</div>
-              <div class="topic-tab" data-topic="travel">✈️ Travel</div>
-              <div class="topic-tab" data-topic="daily">🏠 Daily Life</div>
-              <div class="topic-tab" data-topic="education">🎓 Education</div>
-          </div>
-          
           <div class="filters">
+              <select id="topicFilter">
+                  <option value="">Tất cả chủ đề</option>
+                  <option value="business">Business</option>
+                  <option value="travel">Travel</option>
+                  <option value="daily">Daily Life</option>
+                  <option value="education">Education</option>
+              </select>
+              
               <select id="levelFilter">
                   <option value="">Tất cả cấp độ</option>
                   <option value="beginner">Beginner</option>
@@ -434,128 +372,22 @@
               <button class="add-btn" onclick="openModal()">+ Thêm hội thoại mới</button>
           </div>
       </div>
+
+      <!-- Topic Tabs -->
+      <div class="topic-tabs">
+          <button class="topic-tab-btn active" data-topic="">Tất cả</button>
+          <button class="topic-tab-btn" data-topic="business">Business</button>
+          <button class="topic-tab-btn" data-topic="travel">Travel</button>
+          <button class="topic-tab-btn" data-topic="daily">Daily Life</button>
+          <button class="topic-tab-btn" data-topic="education">Education</button>
+      </div>
       
-      <div id="conversationsContainer">
-          <!-- Business Section -->
-          <div class="topic-section" data-topic="business">
-              <div class="topic-header">
-                  <div class="topic-title">💼 Business</div>
-                  <div class="topic-count" id="business-count">0 hội thoại</div>
-              </div>
-              <div class="conversations-list" id="business-list">
-                  <!-- Sample conversation -->
-                  <div class="conversation-card" data-topic="business" data-level="intermediate">
-                      <div class="card-header">
-                          <h3 class="card-title">Meeting Introduction</h3>
-                          <span class="level-badge level-intermediate">Intermediate</span>
-                      </div>
-                      <div class="characters">
-                          <div class="character character-a">👨‍💼 John (Manager)</div>
-                          <div class="character character-b">👩‍💼 Sarah (New Employee)</div>
-                      </div>
-                      <div class="dialogue-container">
-                          <div class="dialogue-line dialogue-a">
-                              <div class="speaker-name speaker-a">👨‍💼 John:</div>
-                              <div class="dialogue-content">
-                                  <div class="lang-text english-text">Good morning everyone. Let's begin today's meeting.</div>
-                                  <div class="lang-text vietnamese-text">Chào buổi sáng mọi người. Hãy bắt đầu cuộc họp hôm nay.</div>
-                              </div>
-                          </div>
-                          <div class="dialogue-line dialogue-b">
-                              <div class="speaker-name speaker-b">👩‍💼 Sarah:</div>
-                              <div class="dialogue-content">
-                                  <div class="lang-text english-text">Thank you for welcoming me to the team.</div>
-                                  <div class="lang-text vietnamese-text">Cảm ơn vì đã chào đón tôi vào nhóm.</div>
-                              </div>
-                          </div>
-                          <div class="dialogue-line dialogue-a">
-                              <div class="speaker-name speaker-a">👨‍💼 John:</div>
-                              <div class="dialogue-content">
-                                  <div class="lang-text english-text">We're excited to have you here. Let's discuss today's agenda.</div>
-                                  <div class="lang-text vietnamese-text">Chúng tôi rất vui khi có bạn ở đây. Hãy thảo luận về chương trình hôm nay.</div>
-                              </div>
-                          </div>
-                          <div class="dialogue-line dialogue-b">
-                              <div class="speaker-name speaker-b">👩‍💼 Sarah:</div>
-                              <div class="dialogue-content">
-                                  <div class="lang-text english-text">I'm looking forward to contributing to the team's success.</div>
-                                  <div class="lang-text vietnamese-text">Tôi mong muốn được đóng góp vào thành công của nhóm.</div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-          
-          <!-- Travel Section -->
-          <div class="topic-section" data-topic="travel">
-              <div class="topic-header">
-                  <div class="topic-title">✈️ Travel</div>
-                  <div class="topic-count" id="travel-count">0 hội thoại</div>
-              </div>
-              <div class="conversations-list" id="travel-list">
-                  <!-- Sample conversation -->
-                  <div class="conversation-card" data-topic="travel" data-level="beginner">
-                      <div class="card-header">
-                          <h3 class="card-title">At the Airport</h3>
-                          <span class="level-badge level-beginner">Beginner</span>
-                      </div>
-                      <div class="characters">
-                          <div class="character character-a">🧳 Tourist</div>
-                          <div class="character character-b">👩‍✈️ Staff</div>
-                      </div>
-                      <div class="dialogue-container">
-                          <div class="dialogue-line dialogue-a">
-                              <div class="speaker-name speaker-a">🧳 Tourist:</div>
-                              <div class="dialogue-content">
-                                  <div class="lang-text english-text">Excuse me, where is the check-in counter for Vietnam Airlines?</div>
-                                  <div class="lang-text vietnamese-text">Xin lỗi, quầy check-in của Vietnam Airlines ở đâu?</div>
-                              </div>
-                          </div>
-                          <div class="dialogue-line dialogue-b">
-                              <div class="speaker-name speaker-b">👩‍✈️ Staff:</div>
-                              <div class="dialogue-content">
-                                  <div class="lang-text english-text">It's on the second floor, counter number 15-20.</div>
-                                  <div class="lang-text vietnamese-text">Ở tầng hai, quầy số 15-20 ạ.</div>
-                              </div>
-                          </div>
-                          <div class="dialogue-line dialogue-a">
-                              <div class="speaker-name speaker-a">🧳 Tourist:</div>
-                              <div class="dialogue-content">
-                                  <div class="lang-text english-text">Thank you very much!</div>
-                                  <div class="lang-text vietnamese-text">Cảm ơn bạn rất nhiều!</div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-          
-          <!-- Daily Life Section -->
-          <div class="topic-section" data-topic="daily">
-              <div class="topic-header">
-                  <div class="topic-title">🏠 Daily Life</div>
-                  <div class="topic-count" id="daily-count">0 hội thoại</div>
-              </div>
-              <div class="conversations-list" id="daily-list">
-                  <div class="empty-state">Chưa có hội thoại nào trong chủ đề này</div>
-              </div>
-          </div>
-          
-          <!-- Education Section -->
-          <div class="topic-section" data-topic="education">
-              <div class="topic-header">
-                  <div class="topic-title">🎓 Education</div>
-                  <div class="topic-count" id="education-count">0 hội thoại</div>
-              </div>
-              <div class="conversations-list" id="education-list">
-                  <div class="empty-state">Chưa có hội thoại nào trong chủ đề này</div>
-              </div>
-          </div>
+      <div class="conversations-grid" id="conversationsGrid">
+          <!-- Cards sẽ được render bằng JS -->
       </div>
   </div>
   
-  <!-- Modal for adding new conversation -->
+  <!-- Modal for adding/editing conversation -->
   <div id="addModal" class="modal">
       <div class="modal-content">
           <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -608,89 +440,93 @@
   </div>
   
   <script>
-      // Store conversations in localStorage
-      let conversations = JSON.parse(localStorage.getItem('conversations')) || [];
+      // Mặc định 2 hội thoại mẫu
+      const defaultConversations = [
+          {
+              id: 1,
+              title: "Meeting Introduction",
+              topic: "business",
+              level: "intermediate",
+              characterA: "John (Manager)",
+              characterB: "Sarah (New Employee)",
+              dialogues: [
+                  {speaker: "A", english: "Good morning everyone. Let's begin today's meeting.", vietnamese: "Chào buổi sáng mọi người. Hãy bắt đầu cuộc họp hôm nay."},
+                  {speaker: "B", english: "Thank you for welcoming me to the team.", vietnamese: "Cảm ơn vì đã chào đón tôi vào nhóm."},
+                  {speaker: "A", english: "We're excited to have you here. Let's discuss today's agenda.", vietnamese: "Chúng tôi rất vui khi có bạn ở đây. Hãy thảo luận về chương trình hôm nay."}
+              ]
+          },
+          {
+              id: 2,
+              title: "At the Airport",
+              topic: "travel",
+              level: "beginner",
+              characterA: "Tourist",
+              characterB: "Staff",
+              dialogues: [
+                  {speaker: "A", english: "Excuse me, where is the check-in counter for Vietnam Airlines?", vietnamese: "Xin lỗi, quầy check-in của Vietnam Airlines ở đâu?"},
+                  {speaker: "B", english: "It's on the second floor, counter number 15-20.", vietnamese: "Ở tầng hai, quầy số 15-20 ạ."},
+                  {speaker: "A", english: "Thank you very much!", vietnamese: "Cảm ơn bạn rất nhiều!"}
+              ]
+          }
+      ];
+
+      // Khởi tạo dữ liệu
+      let conversations = JSON.parse(localStorage.getItem('conversations'));
+      if (!conversations || conversations.length === 0) {
+          conversations = JSON.parse(JSON.stringify(defaultConversations));
+          localStorage.setItem('conversations', JSON.stringify(conversations));
+      }
+
       let dialogueCounter = 0;
-      let currentTopicFilter = '';
-      
-      // Initialize
-      document.addEventListener('DOMContentLoaded', function() {
-          updateTopicCounts();
-          loadSavedConversations();
-      });
-      
-      // Topic tab functionality
-      document.querySelectorAll('.topic-tab').forEach(tab => {
-          tab.addEventListener('click', function() {
-              // Remove active class from all tabs
-              document.querySelectorAll('.topic-tab').forEach(t => t.classList.remove('active'));
-              // Add active class to clicked tab
-              this.classList.add('active');
-              
-              currentTopicFilter = this.dataset.topic;
-              filterConversations();
-          });
-      });
-      
-      // Search functionality
+      let editingConversationId = null;
+
+      // Search/filter functionality
       document.getElementById('searchBox').addEventListener('input', filterConversations);
+      document.getElementById('topicFilter').addEventListener('change', function(){
+          // Đồng bộ tab và filter
+          let topic = this.value;
+          document.querySelectorAll('.topic-tab-btn').forEach(btn=>{
+              if(btn.dataset.topic===topic) btn.classList.add('active');
+              else btn.classList.remove('active');
+          });
+          filterConversations();
+      });
       document.getElementById('levelFilter').addEventListener('change', filterConversations);
-      
+
       function filterConversations() {
           const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+          const topicFilter = document.getElementById('topicFilter').value;
           const levelFilter = document.getElementById('levelFilter').value;
           
-          // Show/hide topic sections
-          document.querySelectorAll('.topic-section').forEach(section => {
-              const sectionTopic = section.dataset.topic;
+          const cards = document.querySelectorAll('.conversation-card');
+          
+          cards.forEach(card => {
+              const title = card.querySelector('.card-title').textContent.toLowerCase();
+              const content = card.textContent.toLowerCase();
+              const topic = card.dataset.topic;
+              const level = card.dataset.level;
               
-              if (currentTopicFilter === '' || currentTopicFilter === sectionTopic) {
-                  section.style.display = 'block';
-                  
-                  // Filter conversations within this section
-                  const cards = section.querySelectorAll('.conversation-card');
-                  let visibleCount = 0;
-                  
-                  cards.forEach(card => {
-                      const title = card.querySelector('.card-title').textContent.toLowerCase();
-                      const content = card.textContent.toLowerCase();
-                      const level = card.dataset.level;
-                      
-                      const matchesSearch = content.includes(searchTerm);
-                      const matchesLevel = !levelFilter || level === levelFilter;
-                      
-                      if (matchesSearch && matchesLevel) {
-                          card.style.display = 'block';
-                          visibleCount++;
-                      } else {
-                          card.style.display = 'none';
-                      }
-                  });
-                  
-                  // Show/hide empty state
-                  const emptyState = section.querySelector('.empty-state');
-                  const conversationsList = section.querySelector('.conversations-list');
-                  
-                  if (visibleCount === 0 && !emptyState) {
-                      conversationsList.innerHTML = '<div class="empty-state">Không tìm thấy hội thoại nào</div>';
-                  } else if (visibleCount > 0 && emptyState) {
-                      emptyState.style.display = 'none';
-                  }
+              const matchesSearch = content.includes(searchTerm);
+              const matchesTopic = !topicFilter || topic === topicFilter;
+              const matchesLevel = !levelFilter || level === levelFilter;
+              
+              if (matchesSearch && matchesTopic && matchesLevel) {
+                  card.style.display = 'block';
               } else {
-                  section.style.display = 'none';
+                  card.style.display = 'none';
               }
           });
       }
-      
-      function updateTopicCounts() {
-          const topics = ['business', 'travel', 'daily', 'education'];
-          
-          topics.forEach(topic => {
-              const count = document.querySelectorAll(`[data-topic="${topic}"] .conversation-card`).length;
-              const countElement = document.getElementById(`${topic}-count`);
-              if (countElement) {
-                  countElement.textContent = `${count} hội thoại`;
-              }
+
+      // Topic tab click
+      function setupTopicTabs() {
+          document.querySelectorAll('.topic-tab-btn').forEach(btn => {
+              btn.addEventListener('click', function() {
+                  document.querySelectorAll('.topic-tab-btn').forEach(b => b.classList.remove('active'));
+                  this.classList.add('active');
+                  document.getElementById('topicFilter').value = this.dataset.topic;
+                  filterConversations();
+              });
           });
       }
       
@@ -708,6 +544,7 @@
           document.getElementById('conversationForm').reset();
           document.getElementById('dialogueInputs').innerHTML = '';
           dialogueCounter = 0;
+          editingConversationId = null;
       }
       
       // Add dialogue line input
@@ -734,7 +571,7 @@
           button.parentElement.remove();
       }
       
-      // Form submission
+      // Form submission (add/edit)
       document.getElementById('conversationForm').addEventListener('submit', function(e) {
           e.preventDefault();
           
@@ -759,41 +596,46 @@
                   vietnamese: vietnamese
               });
           });
-          
-          const newConversation = {
-              id: Date.now(),
-              title: title,
-              topic: topic,
-              level: level,
-              characterA: characterA,
-              characterB: characterB,
-              dialogues: dialogues
-          };
-          
-          conversations.push(newConversation);
-          localStorage.setItem('conversations', JSON.stringify(conversations));
-          
-          addConversationCard(newConversation);
-          updateTopicCounts();
-          closeModal();
-          
-          alert('Đã thêm hội thoại thành công!');
-      });
-      
-      // Add conversation card to appropriate topic section
-      function addConversationCard(conversation) {
-          const topicList = document.getElementById(`${conversation.topic}-list`);
-          
-          // Remove empty state if exists
-          const emptyState = topicList.querySelector('.empty-state');
-          if (emptyState) {
-              emptyState.remove();
+
+          if (editingConversationId) {
+              // Update
+              const idx = conversations.findIndex(c => c.id === editingConversationId);
+              if (idx !== -1) {
+                  conversations[idx] = {
+                      id: editingConversationId,
+                      title, topic, level, characterA, characterB, dialogues
+                  };
+              }
+              editingConversationId = null;
+          } else {
+              // Add new
+              const newConversation = {
+                  id: Date.now(),
+                  title, topic, level, characterA, characterB, dialogues
+              };
+              conversations.push(newConversation);
           }
+          localStorage.setItem('conversations', JSON.stringify(conversations));
+          renderConversations();
+          closeModal();
+          alert('Lưu hội thoại thành công!');
+      });
+
+      // Thêm hội thoại vào grid
+      function addConversationCard(conversation) {
+          const grid = document.getElementById('conversationsGrid');
           
           const card = document.createElement('div');
           card.className = 'conversation-card';
           card.dataset.topic = conversation.topic;
           card.dataset.level = conversation.level;
+          
+          const topicLabels = {
+              business: 'Business',
+              travel: 'Travel',
+              daily: 'Daily Life',
+              education: 'Education'
+          };
           
           const levelLabels = {
               beginner: 'Beginner',
@@ -808,10 +650,133 @@
               const characterName = isCharacterA ? conversation.characterA : conversation.characterB;
               const dialogueClass = isCharacterA ? 'dialogue-a' : 'dialogue-b';
               const speakerClass = isCharacterA ? 'speaker-a' : 'speaker-b';
-              const icon = isCharacterA ? '👤' : '👤';
               
               dialogueHTML += `
                   <div class="dialogue-line ${dialogueClass}">
-                      <div class="speaker-name ${speakerClass}">${icon} ${characterName}:</div>
+                      <div class="speaker-name ${speakerClass}">${characterName}:</div>
                       <div class="dialogue-content">
                           <div class="lang-text english-text">${dialogue.english}</div>
+                          <div class="lang-text vietnamese-text">${dialogue.vietnamese}</div>
+                      </div>
+                  </div>
+              `;
+          });
+          
+          card.innerHTML = `
+              <div class="card-header">
+                  <h3 class="card-title">${conversation.title}</h3>
+                  <div>
+                      <span class="topic-badge">${topicLabels[conversation.topic]}</span>
+                      <span class="level-badge">${levelLabels[conversation.level]}</span>
+                  </div>
+              </div>
+              <div class="characters">
+                  <div class="character character-a">👤 ${conversation.characterA}</div>
+                  <div class="character character-b">👤 ${conversation.characterB}</div>
+              </div>
+              <div class="dialogue-container">
+                  ${dialogueHTML}
+              </div>
+              <div class="card-actions">
+                  <button class="edit-btn" onclick="editConversation(${conversation.id})">Sửa</button>
+                  <button class="delete-btn" onclick="deleteConversation(${conversation.id})">Xóa</button>
+                  <button class="duplicate-btn" onclick="duplicateConversation(${conversation.id})">Nhân bản</button>
+              </div>
+          `;
+          
+          grid.appendChild(card);
+      }
+
+      // Xóa hội thoại
+      function deleteConversation(id) {
+          if (!confirm('Bạn có chắc muốn xóa hội thoại này?')) return;
+          conversations = conversations.filter(conv => conv.id !== id);
+          localStorage.setItem('conversations', JSON.stringify(conversations));
+          renderConversations();
+          filterConversations();
+      }
+
+      // Sửa hội thoại
+      function editConversation(id) {
+          const conv = conversations.find(c => c.id === id);
+          if (!conv) return;
+          openModal();
+          editingConversationId = id;
+
+          document.getElementById('title').value = conv.title;
+          document.getElementById('topic').value = conv.topic;
+          document.getElementById('level').value = conv.level;
+          document.getElementById('characterA').value = conv.characterA;
+          document.getElementById('characterB').value = conv.characterB;
+
+          // Clear and fill dialogue inputs
+          const container = document.getElementById('dialogueInputs');
+          container.innerHTML = '';
+          dialogueCounter = 0;
+          conv.dialogues.forEach(d => {
+              const lineDiv = document.createElement('div');
+              lineDiv.className = 'dialogue-input';
+              lineDiv.innerHTML = `
+                  <button type="button" class="remove-dialogue-btn" onclick="removeDialogueLine(this)">Xóa</button>
+                  <select class="speaker-select" name="speaker_${dialogueCounter}">
+                      <option value="A"${d.speaker === 'A' ? ' selected' : ''}>Nhân vật A</option>
+                      <option value="B"${d.speaker === 'B' ? ' selected' : ''}>Nhân vật B</option>
+                  </select>
+                  <div class="dialogue-texts">
+                      <textarea name="english_${dialogueCounter}" placeholder="Nội dung tiếng Anh" required>${d.english}</textarea>
+                      <textarea name="vietnamese_${dialogueCounter}" placeholder="Nội dung tiếng Việt" required>${d.vietnamese}</textarea>
+                  </div>
+              `;
+              container.appendChild(lineDiv);
+              dialogueCounter++;
+          });
+      }
+
+      // Nhân bản hội thoại
+      function duplicateConversation(id) {
+          let conv = conversations.find(c => c.id === id);
+          if (!conv) return;
+          // Tạo bản sao với id mới
+          let newConv = JSON.parse(JSON.stringify(conv));
+          newConv.id = Date.now();
+          newConv.title += " (Bản sao)";
+          conversations.push(newConv);
+          localStorage.setItem('conversations', JSON.stringify(conversations));
+          renderConversations();
+          alert('Đã nhân bản hội thoại!');
+      }
+
+      // Render lại danh sách hội thoại (không có mẫu cứng)
+      function renderConversations() {
+          const grid = document.getElementById('conversationsGrid');
+          grid.innerHTML = '';
+          conversations.forEach(conv => {
+              addConversationCard(conv);
+          });
+          filterConversations();
+      }
+
+      // Load saved conversations on page load
+      window.addEventListener('load', function() {
+          setupTopicTabs();
+          renderConversations();
+      });
+      
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+          const modal = document.getElementById('addModal');
+          if (event.target == modal) {
+              closeModal();
+          }
+      }
+      // Expose functions for inline event handlers
+      window.openModal = openModal;
+      window.closeModal = closeModal;
+      window.addDialogueLine = addDialogueLine;
+      window.removeDialogueLine = removeDialogueLine;
+      window.editConversation = editConversation;
+      window.deleteConversation = deleteConversation;
+      window.duplicateConversation = duplicateConversation;
+  </script>
+</body>
+</html>
