@@ -46,11 +46,56 @@
             background: white;
             border-radius: 12px;
             padding: 24px;
-            max-width: 600px;
-            width: 90%;
+            max-width: 800px;
+            width: 95%;
             max-height: 90vh;
             overflow-y: auto;
         }
+
+        .dialogue-line {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 4px solid #e5e7eb;
+        }
+
+        .dialogue-line.speaker-a {
+            background-color: #eff6ff;
+            border-left-color: #3b82f6;
+        }
+
+        .dialogue-line.speaker-b {
+            background-color: #f0fdf4;
+            border-left-color: #10b981;
+        }
+
+        .dialogue-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success { background-color: #10b981; }
+        .notification.error { background-color: #ef4444; }
+        .notification.info { background-color: #3b82f6; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -63,6 +108,9 @@
                     <h1 class="text-3xl font-bold text-gray-900">Kho Hội Thoại Song Ngữ</h1>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <button onclick="openModal('importModal')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-upload mr-2"></i>Nhập Dữ Liệu
+                    </button>
                     <button onclick="exportData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                         <i class="fas fa-download mr-2"></i>Xuất Dữ Liệu
                     </button>
@@ -152,7 +200,7 @@
             </div>
             
             <form id="conversationForm" onsubmit="saveConversation(event)">
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tiêu đề *</label>
@@ -164,7 +212,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tags (phân cách bằng dấu phẩy)</label>
                             <input type="text" id="tags" placeholder="ví dụ: giới thiệu, cơ bản, giao tiếp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -177,22 +225,63 @@
                                 <option value="advanced">Nâng cao</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Người tham gia</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="speakerA" placeholder="Người A" value="A" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <input type="text" id="speakerB" placeholder="Người B" value="B" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nội dung tiếng Anh *</label>
-                        <textarea id="englishContent" required rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Nhập nội dung tiếng Anh..."></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nội dung tiếng Việt *</label>
-                        <textarea id="vietnameseContent" required rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Nhập nội dung tiếng Việt..."></textarea>
+                    <!-- Dialogue Builder -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hội thoại tiếng Anh *</label>
+                            <div class="border border-gray-300 rounded-lg p-4 min-h-64 bg-gray-50">
+                                <div id="englishDialogue" class="mb-4">
+                                    <!-- English dialogue lines will be rendered here -->
+                                </div>
+                                <div class="dialogue-input">
+                                    <select id="englishSpeaker" class="px-3 py-1 border border-gray-300 rounded text-sm">
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                    </select>
+                                    <input type="text" id="englishLine" placeholder="Nhập câu nói..." class="flex-1 px-3 py-1 border border-gray-300 rounded text-sm">
+                                    <button type="button" onclick="addDialogueLine('english')" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hội thoại tiếng Việt *</label>
+                            <div class="border border-gray-300 rounded-lg p-4 min-h-64 bg-gray-50">
+                                <div id="vietnameseDialogue" class="mb-4">
+                                    <!-- Vietnamese dialogue lines will be rendered here -->
+                                </div>
+                                <div class="dialogue-input">
+                                    <select id="vietnameseSpeaker" class="px-3 py-1 border border-gray-300 rounded text-sm">
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                    </select>
+                                    <input type="text" id="vietnameseLine" placeholder="Nhập câu nói..." class="flex-1 px-3 py-1 border border-gray-300 rounded text-sm">
+                                    <button type="button" onclick="addDialogueLine('vietnamese')" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="flex justify-end space-x-4 mt-8">
                     <button type="button" onclick="closeModal('addModal')" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                         Hủy
+                    </button>
+                    <button type="button" onclick="clearDialogue()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                        <i class="fas fa-eraser mr-2"></i>Xóa Hội Thoại
                     </button>
                     <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         <i class="fas fa-save mr-2"></i><span id="saveButtonText">Lưu</span>
@@ -235,8 +324,9 @@
         let conversations = [];
         let editingId = null;
         let currentFilter = { search: '', category: '', difficulty: '' };
+        let currentDialogue = { english: [], vietnamese: [] };
 
-        // Sample data
+        // Sample data with dialogue format
         const sampleData = [
             {
                 id: 1,
@@ -244,29 +334,57 @@
                 category: "Giao tiếp cơ bản",
                 tags: ["introduction", "basic", "greeting"],
                 difficulty: "beginner",
-                englishContent: "Hi, my name is John. I'm from Vietnam. I'm 25 years old and I work as a software developer. Nice to meet you!",
-                vietnameseContent: "Xin chào, tôi tên là John. Tôi đến từ Việt Nam. Tôi 25 tuổi và làm việc như một lập trình viên. Rất vui được gặp bạn!",
+                speakerA: "John",
+                speakerB: "Mary",
+                englishDialogue: [
+                    { speaker: "John", text: "Hi, my name is John. Nice to meet you!" },
+                    { speaker: "Mary", text: "Hello John! I'm Mary. Nice to meet you too!" },
+                    { speaker: "John", text: "Where are you from, Mary?" },
+                    { speaker: "Mary", text: "I'm from Vietnam. How about you?" },
+                    { speaker: "John", text: "I'm from the United States. What do you do?" },
+                    { speaker: "Mary", text: "I'm a software developer. And you?" },
+                    { speaker: "John", text: "I'm a teacher. It's great to meet you!" }
+                ],
+                vietnameseDialogue: [
+                    { speaker: "John", text: "Xin chào, tôi tên là John. Rất vui được gặp bạn!" },
+                    { speaker: "Mary", text: "Chào John! Tôi là Mary. Tôi cũng rất vui được gặp bạn!" },
+                    { speaker: "John", text: "Bạn đến từ đâu vậy Mary?" },
+                    { speaker: "Mary", text: "Tôi đến từ Việt Nam. Còn bạn thì sao?" },
+                    { speaker: "John", text: "Tôi đến từ Hoa Kỳ. Bạn làm nghề gì?" },
+                    { speaker: "Mary", text: "Tôi là lập trình viên. Còn bạn?" },
+                    { speaker: "John", text: "Tôi là giáo viên. Rất vui được gặp bạn!" }
+                ],
                 createdAt: "2024-05-01"
             },
             {
                 id: 2,
                 title: "Đặt món ăn tại nhà hàng",
                 category: "Nhà hàng",
-                tags: ["food", "restaurant", "ordering", "dining"],
+                tags: ["food", "restaurant", "ordering"],
                 difficulty: "intermediate",
-                englishContent: "Excuse me, I'd like to order a bowl of pho, please. Can I have it with extra herbs and lime? Also, could you make it less spicy?",
-                vietnameseContent: "Xin lỗi, tôi muốn gọi một tô phở. Cho tôi thêm rau thơm và chanh được không? Và làm ơn làm ít cay hơn.",
+                speakerA: "Customer",
+                speakerB: "Waiter",
+                englishDialogue: [
+                    { speaker: "Waiter", text: "Good evening! Welcome to our restaurant. How many people?" },
+                    { speaker: "Customer", text: "Good evening! Table for two, please." },
+                    { speaker: "Waiter", text: "Right this way. Here's your menu." },
+                    { speaker: "Customer", text: "Thank you. Could I have a bowl of pho, please?" },
+                    { speaker: "Waiter", text: "Of course! Would you like it with beef or chicken?" },
+                    { speaker: "Customer", text: "Beef, please. And could you make it less spicy?" },
+                    { speaker: "Waiter", text: "No problem. Anything to drink?" },
+                    { speaker: "Customer", text: "Just water, thank you." }
+                ],
+                vietnameseDialogue: [
+                    { speaker: "Waiter", text: "Chào buổi tối! Chào mừng đến nhà hàng. Mấy người ạ?" },
+                    { speaker: "Customer", text: "Chào buổi tối! Bàn cho hai người." },
+                    { speaker: "Waiter", text: "Mời bạn đi theo. Đây là thực đơn ạ." },
+                    { speaker: "Customer", text: "Cảm ơn. Cho tôi một tô phở được không?" },
+                    { speaker: "Waiter", text: "Dạ được ạ! Bạn muốn phở bò hay phở gà?" },
+                    { speaker: "Customer", text: "Phở bò. Và làm ơn làm ít cay hơn." },
+                    { speaker: "Waiter", text: "Dạ không sao ạ. Bạn uống gì không?" },
+                    { speaker: "Customer", text: "Chỉ nước lọc thôi, cảm ơn." }
+                ],
                 createdAt: "2024-05-02"
-            },
-            {
-                id: 3,
-                title: "Hỏi đường đi",
-                category: "Du lịch",
-                tags: ["directions", "travel", "navigation", "transportation"],
-                difficulty: "beginner",
-                englishContent: "Excuse me, how can I get to the nearest subway station? Is it walking distance from here?",
-                vietnameseContent: "Xin lỗi, làm thế nào để đến ga tàu điện ngầm gần nhất? Từ đây có thể đi bộ được không?",
-                createdAt: "2024-05-03"
             }
         ];
 
@@ -280,7 +398,7 @@
 
         // Data management
         function loadData() {
-            const savedData = localStorage.getItem('conversations');
+            const savedData = localStorage.getItem('bilingual_conversations');
             if (savedData) {
                 conversations = JSON.parse(savedData);
             } else {
@@ -290,7 +408,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('conversations', JSON.stringify(conversations));
+            localStorage.setItem('bilingual_conversations', JSON.stringify(conversations));
         }
 
         // Modal management
@@ -314,18 +432,104 @@
             document.getElementById('conversationForm').reset();
             document.getElementById('modalTitle').textContent = editingId ? 'Chỉnh Sửa Hội Thoại' : 'Thêm Hội Thoại Mới';
             document.getElementById('saveButtonText').textContent = editingId ? 'Cập Nhật' : 'Lưu';
+            
+            // Reset dialogue
+            currentDialogue = { english: [], vietnamese: [] };
+            renderDialogueBuilder();
+            updateSpeakerOptions();
         }
+
+        // Dialogue management
+        function addDialogueLine(language) {
+            const speakerSelect = document.getElementById(language + 'Speaker');
+            const lineInput = document.getElementById(language + 'Line');
+            
+            const speaker = speakerSelect.value;
+            const text = lineInput.value.trim();
+            
+            if (!text) {
+                showNotification('Vui lòng nhập nội dung câu nói!', 'error');
+                return;
+            }
+            
+            currentDialogue[language].push({ speaker, text });
+            lineInput.value = '';
+            renderDialogueBuilder();
+        }
+
+        function removeDialogueLine(language, index) {
+            currentDialogue[language].splice(index, 1);
+            renderDialogueBuilder();
+        }
+
+        function clearDialogue() {
+            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ hội thoại?')) {
+                currentDialogue = { english: [], vietnamese: [] };
+                renderDialogueBuilder();
+            }
+        }
+
+        function renderDialogueBuilder() {
+            renderDialogueLines('english');
+            renderDialogueLines('vietnamese');
+        }
+
+        function renderDialogueLines(language) {
+            const container = document.getElementById(language + 'Dialogue');
+            const lines = currentDialogue[language];
+            
+            container.innerHTML = lines.map((line, index) => `
+                <div class="dialogue-line speaker-${line.speaker.toLowerCase().replace(/[^a-z]/g, '') === document.getElementById('speakerA').value.toLowerCase().replace(/[^a-z]/g, '') ? 'a' : 'b'}">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <strong class="text-sm font-medium">${line.speaker}:</strong>
+                            <span class="ml-2">${line.text}</span>
+                        </div>
+                        <button type="button" onclick="removeDialogueLine('${language}', ${index})" class="ml-2 text-red-500 hover:text-red-700">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSpeakerOptions() {
+            const speakerA = document.getElementById('speakerA').value || 'A';
+            const speakerB = document.getElementById('speakerB').value || 'B';
+            
+            ['english', 'vietnamese'].forEach(lang => {
+                const select = document.getElementById(lang + 'Speaker');
+                select.innerHTML = `
+                    <option value="${speakerA}">${speakerA}</option>
+                    <option value="${speakerB}">${speakerB}</option>
+                `;
+            });
+        }
+
+        // Update speaker options when input changes
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'speakerA' || e.target.id === 'speakerB') {
+                updateSpeakerOptions();
+            }
+        });
 
         function saveConversation(event) {
             event.preventDefault();
+            
+            if (currentDialogue.english.length === 0 || currentDialogue.vietnamese.length === 0) {
+                showNotification('Vui lòng thêm ít nhất một câu hội thoại cho mỗi ngôn ngữ!', 'error');
+                return;
+            }
             
             const formData = {
                 title: document.getElementById('title').value,
                 category: document.getElementById('category').value,
                 tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
                 difficulty: document.getElementById('difficulty').value,
-                englishContent: document.getElementById('englishContent').value,
-                vietnameseContent: document.getElementById('vietnameseContent').value,
+                speakerA: document.getElementById('speakerA').value || 'A',
+                speakerB: document.getElementById('speakerB').value || 'B',
+                englishDialogue: [...currentDialogue.english],
+                vietnameseDialogue: [...currentDialogue.vietnamese],
                 createdAt: new Date().toISOString().split('T')[0]
             };
 
@@ -346,7 +550,6 @@
             updateCategoryFilter();
             closeModal('addModal');
             
-            // Show success message
             showNotification(editingId ? 'Đã cập nhật hội thoại!' : 'Đã thêm hội thoại mới!', 'success');
         }
 
@@ -357,253 +560,4 @@
             editingId = id;
             
             document.getElementById('title').value = conversation.title;
-            document.getElementById('category').value = conversation.category;
-            document.getElementById('tags').value = conversation.tags.join(', ');
-            document.getElementById('difficulty').value = conversation.difficulty;
-            document.getElementById('englishContent').value = conversation.englishContent;
-            document.getElementById('vietnameseContent').value = conversation.vietnameseContent;
-            
-            openModal('addModal');
-        }
-
-        function deleteConversation(id) {
-            if (confirm('Bạn có chắc chắn muốn xóa hội thoại này?')) {
-                conversations = conversations.filter(conv => conv.id !== id);
-                saveData();
-                renderConversations();
-                updateStatistics();
-                updateCategoryFilter();
-                showNotification('Đã xóa hội thoại!', 'success');
-            }
-        }
-
-        // Rendering
-        function renderConversations() {
-            const container = document.getElementById('conversationsList');
-            const emptyState = document.getElementById('emptyState');
-            
-            const filteredConversations = getFilteredConversations();
-            
-            if (filteredConversations.length === 0) {
-                container.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            
-            emptyState.classList.add('hidden');
-            
-            container.innerHTML = filteredConversations.map(conversation => `
-                <div class="conversation-card bg-white rounded-lg shadow-sm p-6 fade-in">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex-1">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">${conversation.title}</h3>
-                            <div class="flex items-center space-x-4 text-sm">
-                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
-                                    ${conversation.category}
-                                </span>
-                                <span class="bg-${getDifficultyColor(conversation.difficulty)}-100 text-${getDifficultyColor(conversation.difficulty)}-800 px-3 py-1 rounded-full font-medium">
-                                    ${getDifficultyText(conversation.difficulty)}
-                                </span>
-                                <span class="text-gray-500">
-                                    <i class="fas fa-calendar-alt mr-1"></i>${conversation.createdAt}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick="editConversation(${conversation.id})" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteConversation(${conversation.id})" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
-                        <div class="border-l-4 border-blue-500 pl-4">
-                            <h4 class="font-semibold text-blue-700 mb-2 flex items-center">
-                                <i class="fas fa-flag-usa mr-2"></i>English
-                            </h4>
-                            <p class="text-gray-700 leading-relaxed">${conversation.englishContent}</p>
-                        </div>
-                        <div class="border-l-4 border-red-500 pl-4">
-                            <h4 class="font-semibold text-red-700 mb-2 flex items-center">
-                                <i class="fas fa-flag mr-2"></i>Tiếng Việt
-                            </h4>
-                            <p class="text-gray-700 leading-relaxed">${conversation.vietnameseContent}</p>
-                        </div>
-                    </div>
-
-                    ${conversation.tags.length > 0 ? `
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-tags text-gray-400"></i>
-                            <div class="flex flex-wrap gap-2">
-                                ${conversation.tags.map(tag => `
-                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-sm">${tag}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('');
-        }
-
-        // Filtering
-        function filterConversations() {
-            currentFilter.search = document.getElementById('searchInput').value;
-            currentFilter.category = document.getElementById('categoryFilter').value;
-            currentFilter.difficulty = document.getElementById('difficultyFilter').value;
-            
-            renderConversations();
-            updateStatistics();
-        }
-
-        function getFilteredConversations() {
-            return conversations.filter(conv => {
-                const matchesSearch = !currentFilter.search || 
-                    conv.title.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-                    conv.englishContent.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-                    conv.vietnameseContent.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-                    conv.tags.some(tag => tag.toLowerCase().includes(currentFilter.search.toLowerCase()));
-                
-                const matchesCategory = !currentFilter.category || conv.category === currentFilter.category;
-                const matchesDifficulty = !currentFilter.difficulty || conv.difficulty === currentFilter.difficulty;
-                
-                return matchesSearch && matchesCategory && matchesDifficulty;
-            });
-        }
-
-        // Statistics
-        function updateStatistics() {
-            const filtered = getFilteredConversations();
-            const categories = [...new Set(conversations.map(conv => conv.category))];
-            const allTags = [...new Set(conversations.flatMap(conv => conv.tags))];
-            
-            document.getElementById('totalCount').textContent = conversations.length;
-            document.getElementById('categoryCount').textContent = categories.length;
-            document.getElementById('tagCount').textContent = allTags.length;
-            document.getElementById('displayCount').textContent = filtered.length;
-        }
-
-        function updateCategoryFilter() {
-            const categories = [...new Set(conversations.map(conv => conv.category))];
-            const categoryFilter = document.getElementById('categoryFilter');
-            const currentValue = categoryFilter.value;
-            
-            categoryFilter.innerHTML = '<option value="">Tất cả chủ đề</option>' +
-                categories.map(category => `<option value="${category}">${category}</option>`).join('');
-            
-            categoryFilter.value = currentValue;
-        }
-
-        // Import/Export
-        function exportData() {
-            const data = {
-                conversations: conversations,
-                exportDate: new Date().toISOString(),
-                version: "1.0"
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `conversations-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showNotification('Đã xuất dữ liệu thành công!', 'success');
-        }
-
-        function importData() {
-            const fileInput = document.getElementById('importFile');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                showNotification('Vui lòng chọn file để nhập!', 'error');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    if (data.conversations && Array.isArray(data.conversations)) {
-                        if (confirm('Bạn có muốn ghi đè dữ liệu hiện tại không?')) {
-                            conversations = data.conversations;
-                            saveData();
-                            renderConversations();
-                            updateStatistics();
-                            updateCategoryFilter();
-                            closeModal('importModal');
-                            showNotification('Đã nhập dữ liệu thành công!', 'success');
-                        }
-                    } else {
-                        showNotification('File không đúng định dạng!', 'error');
-                    }
-                } catch (error) {
-                    showNotification('Lỗi khi đọc file!', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        // Utility functions
-        function getDifficultyColor(difficulty) {
-            switch(difficulty) {
-                case 'beginner': return 'green';
-                case 'intermediate': return 'yellow';
-                case 'advanced': return 'red';
-                default: return 'gray';
-            }
-        }
-
-        function getDifficultyText(difficulty) {
-            switch(difficulty) {
-                case 'beginner': return 'Cơ bản';
-                case 'intermediate': return 'Trung bình';
-                case 'advanced': return 'Nâng cao';
-                default: return 'Không xác định';
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
-                type === 'success' ? 'bg-green-500' : 
-                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-            }`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case 'n':
-                        e.preventDefault();
-                        openModal('addModal');
-                        break;
-                    case 's':
-                        e.preventDefault();
-                        exportData();
-                        break;
-                }
-            }
-            
-            if (e.key === 'Escape') {
-                closeModal('addModal');
-                closeModal('importModal');
-            }
-        });
-
-        // Add import button to header
+            document.getElementById('
