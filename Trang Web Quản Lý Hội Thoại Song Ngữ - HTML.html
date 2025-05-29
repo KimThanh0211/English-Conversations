@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kho Hội Thoại Song Ngữ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .conversation-card {
+            transition: all 0.3s ease;
+        }
+        
+        .conversation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-globe text-3xl text-blue-600"></i>
+                    <h1 class="text-3xl font-bold text-gray-900">Kho Hội Thoại Song Ngữ</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="exportData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Xuất Dữ Liệu
+                    </button>
+                    <button onclick="openModal('addModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Thêm Hội Thoại
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        <input 
+                            type="text" 
+                            id="searchInput"
+                            placeholder="Tìm kiếm theo tiêu đề, nội dung hoặc tag..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            oninput="filterConversations()"
+                        >
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <select id="categoryFilter" onchange="filterConversations()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Tất cả chủ đề</option>
+                    </select>
+                    <select id="difficultyFilter" onchange="filterConversations()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Mức độ</option>
+                        <option value="beginner">Cơ bản</option>
+                        <option value="intermediate">Trung bình</option>
+                        <option value="advanced">Nâng cao</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-blue-600 text-sm font-medium">Tổng hội thoại</div>
+                    <div class="text-2xl font-bold text-blue-900" id="totalCount">0</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="text-green-600 text-sm font-medium">Chủ đề</div>
+                    <div class="text-2xl font-bold text-green-900" id="categoryCount">0</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="text-purple-600 text-sm font-medium">Tags</div>
+                    <div class="text-2xl font-bold text-purple-900" id="tagCount">0</div>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <div class="text-orange-600 text-sm font-medium">Hiển thị</div>
+                    <div class="text-2xl font-bold text-orange-900" id="displayCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversations List -->
+        <div id="conversationsList" class="space-y-6">
+            <!-- Conversations will be rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden bg-white rounded-lg shadow-sm p-12 text-center">
+            <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Chưa có hội thoại nào</h3>
+            <p class="text-gray-500 mb-6">Bắt đầu bằng cách thêm hội thoại đầu tiên của bạn</p>
+            <button onclick="openModal('addModal')" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Thêm Hội Thoại Đầu Tiên
+            </button>
+        </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900" id="modalTitle">Thêm Hội Thoại Mới</h2>
+                <button onclick="closeModal('addModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="conversationForm" onsubmit="saveConversation(event)">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tiêu đề *</label>
+                            <input type="text" id="title" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chủ đề *</label>
+                            <input type="text" id="category" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tags (phân cách bằng dấu phẩy)</label>
+                            <input type="text" id="tags" placeholder="ví dụ: giới thiệu, cơ bản, giao tiếp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mức độ</label>
+                            <select id="difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="beginner">Cơ bản</option>
+                                <option value="intermediate">Trung bình</option>
+                                <option value="advanced">Nâng cao</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nội dung tiếng Anh *</label>
+                        <textarea id="englishContent" required rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Nhập nội dung tiếng Anh..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nội dung tiếng Việt *</label>
+                        <textarea id="vietnameseContent" required rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Nhập nội dung tiếng Việt..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4 mt-8">
+                    <button type="button" onclick="closeModal('addModal')" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        Hủy
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-save mr-2"></i><span id="saveButtonText">Lưu</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-900">Nhập Dữ Liệu</h2>
+                <button onclick="closeModal('importModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Chọn file JSON</label>
+                    <input type="file" id="importFile" accept=".json" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button onclick="closeModal('importModal')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Hủy
+                    </button>
+                    <button onclick="importData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-upload mr-2"></i>Nhập
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let conversations = [];
+        let editingId = null;
+        let currentFilter = { search: '', category: '', difficulty: '' };
+
+        // Sample data
+        const sampleData = [
+            {
+                id: 1,
+                title: "Giới thiệu bản thân",
+                category: "Giao tiếp cơ bản",
+                tags: ["introduction", "basic", "greeting"],
+                difficulty: "beginner",
+                englishContent: "Hi, my name is John. I'm from Vietnam. I'm 25 years old and I work as a software developer. Nice to meet you!",
+                vietnameseContent: "Xin chào, tôi tên là John. Tôi đến từ Việt Nam. Tôi 25 tuổi và làm việc như một lập trình viên. Rất vui được gặp bạn!",
+                createdAt: "2024-05-01"
+            },
+            {
+                id: 2,
+                title: "Đặt món ăn tại nhà hàng",
+                category: "Nhà hàng",
+                tags: ["food", "restaurant", "ordering", "dining"],
+                difficulty: "intermediate",
+                englishContent: "Excuse me, I'd like to order a bowl of pho, please. Can I have it with extra herbs and lime? Also, could you make it less spicy?",
+                vietnameseContent: "Xin lỗi, tôi muốn gọi một tô phở. Cho tôi thêm rau thơm và chanh được không? Và làm ơn làm ít cay hơn.",
+                createdAt: "2024-05-02"
+            },
+            {
+                id: 3,
+                title: "Hỏi đường đi",
+                category: "Du lịch",
+                tags: ["directions", "travel", "navigation", "transportation"],
+                difficulty: "beginner",
+                englishContent: "Excuse me, how can I get to the nearest subway station? Is it walking distance from here?",
+                vietnameseContent: "Xin lỗi, làm thế nào để đến ga tàu điện ngầm gần nhất? Từ đây có thể đi bộ được không?",
+                createdAt: "2024-05-03"
+            }
+        ];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            renderConversations();
+            updateStatistics();
+            updateCategoryFilter();
+        });
+
+        // Data management
+        function loadData() {
+            const savedData = localStorage.getItem('conversations');
+            if (savedData) {
+                conversations = JSON.parse(savedData);
+            } else {
+                conversations = sampleData;
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('conversations', JSON.stringify(conversations));
+        }
+
+        // Modal management
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+            if (modalId === 'addModal') {
+                resetForm();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            if (modalId === 'addModal') {
+                editingId = null;
+                resetForm();
+            }
+        }
+
+        // Form management
+        function resetForm() {
+            document.getElementById('conversationForm').reset();
+            document.getElementById('modalTitle').textContent = editingId ? 'Chỉnh Sửa Hội Thoại' : 'Thêm Hội Thoại Mới';
+            document.getElementById('saveButtonText').textContent = editingId ? 'Cập Nhật' : 'Lưu';
+        }
+
+        function saveConversation(event) {
+            event.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                difficulty: document.getElementById('difficulty').value,
+                englishContent: document.getElementById('englishContent').value,
+                vietnameseContent: document.getElementById('vietnameseContent').value,
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+
+            if (editingId) {
+                const index = conversations.findIndex(conv => conv.id === editingId);
+                conversations[index] = { ...conversations[index], ...formData };
+            } else {
+                const newConversation = {
+                    id: Date.now(),
+                    ...formData
+                };
+                conversations.push(newConversation);
+            }
+
+            saveData();
+            renderConversations();
+            updateStatistics();
+            updateCategoryFilter();
+            closeModal('addModal');
+            
+            // Show success message
+            showNotification(editingId ? 'Đã cập nhật hội thoại!' : 'Đã thêm hội thoại mới!', 'success');
+        }
+
+        function editConversation(id) {
+            const conversation = conversations.find(conv => conv.id === id);
+            if (!conversation) return;
+
+            editingId = id;
+            
+            document.getElementById('title').value = conversation.title;
+            document.getElementById('category').value = conversation.category;
+            document.getElementById('tags').value = conversation.tags.join(', ');
+            document.getElementById('difficulty').value = conversation.difficulty;
+            document.getElementById('englishContent').value = conversation.englishContent;
+            document.getElementById('vietnameseContent').value = conversation.vietnameseContent;
+            
+            openModal('addModal');
+        }
+
+        function deleteConversation(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa hội thoại này?')) {
+                conversations = conversations.filter(conv => conv.id !== id);
+                saveData();
+                renderConversations();
+                updateStatistics();
+                updateCategoryFilter();
+                showNotification('Đã xóa hội thoại!', 'success');
+            }
+        }
+
+        // Rendering
+        function renderConversations() {
+            const container = document.getElementById('conversationsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            const filteredConversations = getFilteredConversations();
+            
+            if (filteredConversations.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = filteredConversations.map(conversation => `
+                <div class="conversation-card bg-white rounded-lg shadow-sm p-6 fade-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">${conversation.title}</h3>
+                            <div class="flex items-center space-x-4 text-sm">
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+                                    ${conversation.category}
+                                </span>
+                                <span class="bg-${getDifficultyColor(conversation.difficulty)}-100 text-${getDifficultyColor(conversation.difficulty)}-800 px-3 py-1 rounded-full font-medium">
+                                    ${getDifficultyText(conversation.difficulty)}
+                                </span>
+                                <span class="text-gray-500">
+                                    <i class="fas fa-calendar-alt mr-1"></i>${conversation.createdAt}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editConversation(${conversation.id})" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteConversation(${conversation.id})" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-semibold text-blue-700 mb-2 flex items-center">
+                                <i class="fas fa-flag-usa mr-2"></i>English
+                            </h4>
+                            <p class="text-gray-700 leading-relaxed">${conversation.englishContent}</p>
+                        </div>
+                        <div class="border-l-4 border-red-500 pl-4">
+                            <h4 class="font-semibold text-red-700 mb-2 flex items-center">
+                                <i class="fas fa-flag mr-2"></i>Tiếng Việt
+                            </h4>
+                            <p class="text-gray-700 leading-relaxed">${conversation.vietnameseContent}</p>
+                        </div>
+                    </div>
+
+                    ${conversation.tags.length > 0 ? `
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-tags text-gray-400"></i>
+                            <div class="flex flex-wrap gap-2">
+                                ${conversation.tags.map(tag => `
+                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-sm">${tag}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Filtering
+        function filterConversations() {
+            currentFilter.search = document.getElementById('searchInput').value;
+            currentFilter.category = document.getElementById('categoryFilter').value;
+            currentFilter.difficulty = document.getElementById('difficultyFilter').value;
+            
+            renderConversations();
+            updateStatistics();
+        }
+
+        function getFilteredConversations() {
+            return conversations.filter(conv => {
+                const matchesSearch = !currentFilter.search || 
+                    conv.title.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+                    conv.englishContent.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+                    conv.vietnameseContent.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+                    conv.tags.some(tag => tag.toLowerCase().includes(currentFilter.search.toLowerCase()));
+                
+                const matchesCategory = !currentFilter.category || conv.category === currentFilter.category;
+                const matchesDifficulty = !currentFilter.difficulty || conv.difficulty === currentFilter.difficulty;
+                
+                return matchesSearch && matchesCategory && matchesDifficulty;
+            });
+        }
+
+        // Statistics
+        function updateStatistics() {
+            const filtered = getFilteredConversations();
+            const categories = [...new Set(conversations.map(conv => conv.category))];
+            const allTags = [...new Set(conversations.flatMap(conv => conv.tags))];
+            
+            document.getElementById('totalCount').textContent = conversations.length;
+            document.getElementById('categoryCount').textContent = categories.length;
+            document.getElementById('tagCount').textContent = allTags.length;
+            document.getElementById('displayCount').textContent = filtered.length;
+        }
+
+        function updateCategoryFilter() {
+            const categories = [...new Set(conversations.map(conv => conv.category))];
+            const categoryFilter = document.getElementById('categoryFilter');
+            const currentValue = categoryFilter.value;
+            
+            categoryFilter.innerHTML = '<option value="">Tất cả chủ đề</option>' +
+                categories.map(category => `<option value="${category}">${category}</option>`).join('');
+            
+            categoryFilter.value = currentValue;
+        }
+
+        // Import/Export
+        function exportData() {
+            const data = {
+                conversations: conversations,
+                exportDate: new Date().toISOString(),
+                version: "1.0"
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `conversations-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Đã xuất dữ liệu thành công!', 'success');
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showNotification('Vui lòng chọn file để nhập!', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.conversations && Array.isArray(data.conversations)) {
+                        if (confirm('Bạn có muốn ghi đè dữ liệu hiện tại không?')) {
+                            conversations = data.conversations;
+                            saveData();
+                            renderConversations();
+                            updateStatistics();
+                            updateCategoryFilter();
+                            closeModal('importModal');
+                            showNotification('Đã nhập dữ liệu thành công!', 'success');
+                        }
+                    } else {
+                        showNotification('File không đúng định dạng!', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Lỗi khi đọc file!', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Utility functions
+        function getDifficultyColor(difficulty) {
+            switch(difficulty) {
+                case 'beginner': return 'green';
+                case 'intermediate': return 'yellow';
+                case 'advanced': return 'red';
+                default: return 'gray';
+            }
+        }
+
+        function getDifficultyText(difficulty) {
+            switch(difficulty) {
+                case 'beginner': return 'Cơ bản';
+                case 'intermediate': return 'Trung bình';
+                case 'advanced': return 'Nâng cao';
+                default: return 'Không xác định';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'n':
+                        e.preventDefault();
+                        openModal('addModal');
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        exportData();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                closeModal('addModal');
+                closeModal('importModal');
+            }
+        });
+
+        // Add import button to header
