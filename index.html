@@ -188,10 +188,15 @@
       }
       .speaker-name {
         font-weight: bold;
-        font-size: 15px;
+        font-size: clamp(12px, 2vw, 15px);
         white-space: nowrap;
         color: #3498db;
-      }
+        max-width: 110px;
+        min-width: 40px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        }
       .speaker-b {
         color: #e74c3c;
       }
