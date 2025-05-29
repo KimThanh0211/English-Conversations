@@ -314,6 +314,7 @@
             updateStatistics();
             updateCategoryFilter();
             updateSpeakerOptions();
+            setupEventListeners();
         });
 
         // ========== DATA ==========
@@ -326,6 +327,7 @@
                 saveData();
             }
         }
+        
         function saveData() {
             localStorage.setItem('bilingual_conversations', JSON.stringify(conversations));
         }
@@ -337,6 +339,7 @@
                 resetForm();
             }
         }
+        
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
             if (modalId === 'addModal') {
@@ -362,20 +365,24 @@
             const lineInput = document.getElementById(language + 'Line');
             const speaker = speakerSelect.value;
             const text = lineInput.value.trim();
+            
             if (!text) {
                 showNotification('Vui lòng nhập nội dung câu nói!', 'error');
                 return;
             }
+            
             currentDialogue[language].push({ speaker, text });
             lineInput.value = '';
             renderDialogueBuilder();
             renderPreviewTable();
         }
+        
         function removeDialogueLine(language, index) {
             currentDialogue[language].splice(index, 1);
             renderDialogueBuilder();
             renderPreviewTable();
         }
+        
         function clearDialogue() {
             if (confirm('Bạn có chắc chắn muốn xóa toàn bộ hội thoại?')) {
                 currentDialogue = { english: [], vietnamese: [] };
@@ -383,14 +390,17 @@
                 renderPreviewTable();
             }
         }
+        
         function renderDialogueBuilder() {
             renderDialogueLines('english');
             renderDialogueLines('vietnamese');
         }
+        
         function renderDialogueLines(language) {
             const container = document.getElementById(language + 'Dialogue');
             const lines = currentDialogue[language];
             const speakerA = document.getElementById('speakerA').value || 'A';
+            
             container.innerHTML = lines.map((line, index) => `
                 <div class="dialogue-line speaker-${line.speaker === speakerA ? 'a' : 'b'}">
                     <div class="flex justify-between items-start">
@@ -405,9 +415,11 @@
                 </div>
             `).join('');
         }
+        
         function updateSpeakerOptions() {
             const speakerA = document.getElementById('speakerA').value || 'A';
             const speakerB = document.getElementById('speakerB').value || 'B';
+            
             ['english', 'vietnamese'].forEach(lang => {
                 const select = document.getElementById(lang + 'Speaker');
                 select.innerHTML = `
@@ -416,29 +428,36 @@
                 `;
             });
         }
+        
         function renderPreviewTable() {
             const preview = document.getElementById('previewSection');
             const en = currentDialogue.english;
             const vi = currentDialogue.vietnamese;
             const maxRows = Math.max(en.length, vi.length);
+            
             if (maxRows === 0) {
                 preview.innerHTML = '';
                 return;
             }
-            let html = `<table class="preview-table"><thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Tiếng Anh</th>
-                    <th>Tiếng Việt</th>
-                </tr>
-            </thead><tbody>`;
-            for (let i = 0; i < maxRows; ++i) {
+            
+            let html = `<table class="preview-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tiếng Anh</th>
+                        <th>Tiếng Việt</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            
+            for (let i = 0; i < maxRows; i++) {
                 html += `<tr>
                     <td>${i + 1}</td>
                     <td>${en[i] ? `<b>${en[i].speaker}:</b> ${en[i].text}` : ''}</td>
                     <td>${vi[i] ? `<b>${vi[i].speaker}:</b> ${vi[i].text}` : ''}</td>
                 </tr>`;
             }
+            
             html += '</tbody></table>';
             preview.innerHTML = html;
         }
@@ -446,10 +465,12 @@
         // ========== CRUD ==========
         function saveConversation(event) {
             event.preventDefault();
+            
             if (currentDialogue.english.length === 0 || currentDialogue.vietnamese.length === 0) {
                 showNotification('Vui lòng thêm ít nhất một câu hội thoại cho mỗi ngôn ngữ!', 'error');
                 return;
             }
+            
             const formData = {
                 title: document.getElementById('title').value,
                 category: document.getElementById('category').value,
@@ -461,6 +482,7 @@
                 vietnameseDialogue: [...currentDialogue.vietnamese],
                 createdAt: new Date().toISOString().split('T')[0]
             };
+            
             if (editingId) {
                 const index = conversations.findIndex(conv => conv.id === editingId);
                 conversations[index] = { ...conversations[index], ...formData };
@@ -471,183 +493,5 @@
                 };
                 conversations.push(newConversation);
             }
+            
             saveData();
-            renderConversations();
-            updateStatistics();
-            updateCategoryFilter();
-            closeModal('addModal');
-            showNotification(editingId ? 'Đã cập nhật hội thoại!' : 'Đã thêm hội thoại mới!', 'success');
-        }
-        function editConversation(id) {
-            const conversation = conversations.find(conv => conv.id === id);
-            if (!conversation) return;
-            editingId = id;
-            document.getElementById('title').value = conversation.title;
-            document.getElementById('category').value = conversation.category;
-            document.getElementById('tags').value = conversation.tags.join(', ');
-            document.getElementById('difficulty').value = conversation.difficulty;
-            document.getElementById('speakerA').value = conversation.speakerA;
-            document.getElementById('speakerB').value = conversation.speakerB;
-            currentDialogue = {
-                english: conversation.englishDialogue.map(line => ({ ...line })),
-                vietnamese: conversation.vietnameseDialogue.map(line => ({ ...line }))
-            };
-            renderDialogueBuilder();
-            updateSpeakerOptions();
-            renderPreviewTable();
-            document.getElementById('modalTitle').textContent = 'Chỉnh Sửa Hội Thoại';
-            document.getElementById('saveButtonText').textContent = 'Cập Nhật';
-            openModal('addModal');
-        }
-        function deleteConversation(id) {
-            if (confirm('Bạn có chắc chắn muốn xóa hội thoại này?')) {
-                conversations = conversations.filter(conv => conv.id !== id);
-                saveData();
-                renderConversations();
-                updateStatistics();
-                updateCategoryFilter();
-                showNotification('Đã xóa hội thoại!', 'success');
-            }
-        }
-
-        // ========== RENDER ==========
-        function renderConversations() {
-            const list = document.getElementById('conversationsList');
-            let filtered = conversations.filter(conv => {
-                let match = true;
-                if (currentFilter.search) {
-                    const s = currentFilter.search.toLowerCase();
-                    match = match && (
-                        conv.title.toLowerCase().includes(s) ||
-                        conv.category.toLowerCase().includes(s) ||
-                        conv.tags.join(',').toLowerCase().includes(s) ||
-                        conv.englishDialogue.some(line => line.text.toLowerCase().includes(s)) ||
-                        conv.vietnameseDialogue.some(line => line.text.toLowerCase().includes(s))
-                    );
-                }
-                if (currentFilter.category) {
-                    match = match && conv.category === currentFilter.category;
-                }
-                if (currentFilter.difficulty) {
-                    match = match && conv.difficulty === currentFilter.difficulty;
-                }
-                return match;
-            });
-            document.getElementById('displayCount').textContent = filtered.length;
-            if (filtered.length === 0) {
-                list.innerHTML = '';
-                document.getElementById('emptyState').classList.remove('hidden');
-                return;
-            } else {
-                document.getElementById('emptyState').classList.add('hidden');
-            }
-            list.innerHTML = filtered.map(conv => `
-                <div class="bg-white rounded-lg shadow conversation-card fade-in p-6">
-                    <div class="flex justify-between items-center mb-2">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-1">${conv.title}</h3>
-                            <div class="text-sm text-gray-500">${conv.category} · ${conv.difficulty === 'beginner' ? 'Cơ bản' : conv.difficulty === 'intermediate' ? 'Trung bình' : 'Nâng cao'}</div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button data-edit="${conv.id}" class="text-blue-600 hover:text-blue-800" title="Sửa"><i class="fas fa-edit"></i></button>
-                            <button data-delete="${conv.id}" class="text-red-600 hover:text-red-800" title="Xóa"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="mb-2">
-                        ${conv.tags.map(tag => `<span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1">${tag}</span>`).join('')}
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <div class="font-semibold text-gray-700 mb-1">${conv.speakerA} & ${conv.speakerB} (EN):</div>
-                            ${conv.englishDialogue.map(line => `<div class="text-sm mb-1"><span class="font-bold">${line.speaker}:</span> ${line.text}</div>`).join('')}
-                        </div>
-                        <div>
-                            <div class="font-semibold text-gray-700 mb-1">${conv.speakerA} & ${conv.speakerB} (VI):</div>
-                            ${conv.vietnameseDialogue.map(line => `<div class="text-sm mb-1"><span class="font-bold">${line.speaker}:</span> ${line.text}</div>`).join('')}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ========== FILTER ==========
-        function filterConversations() {
-            currentFilter.search = document.getElementById('searchInput').value.trim();
-            currentFilter.category = document.getElementById('categoryFilter').value;
-            currentFilter.difficulty = document.getElementById('difficultyFilter').value;
-            renderConversations();
-        }
-
-        // ========== STATISTICS ==========
-        function updateStatistics() {
-            document.getElementById('totalCount').textContent = conversations.length;
-            const categories = new Set(conversations.map(c => c.category));
-            document.getElementById('categoryCount').textContent = categories.size;
-            const tags = new Set(conversations.flatMap(c => c.tags));
-            document.getElementById('tagCount').textContent = tags.size;
-        }
-
-        // ========== CATEGORY FILTER ==========
-        function updateCategoryFilter() {
-            const select = document.getElementById('categoryFilter');
-            const categories = Array.from(new Set(conversations.map(c => c.category)));
-            select.innerHTML = '<option value="">Tất cả chủ đề</option>' + categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-        }
-
-        // ========== EXPORT/IMPORT ==========
-        function exportData() {
-            const blob = new Blob([JSON.stringify(conversations, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'bilingual_conversations.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showNotification('Đã xuất dữ liệu!', 'success');
-        }
-        function importData() {
-            const input = document.getElementById('importFile');
-            if (!input.files.length) {
-                showNotification('Vui lòng chọn file JSON!', 'error');
-                return;
-            }
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (!Array.isArray(data)) throw new Error();
-                    conversations = data;
-                    saveData();
-                    renderConversations();
-                    updateStatistics();
-                    updateCategoryFilter();
-                    closeModal('importModal');
-                    showNotification('Đã nhập dữ liệu thành công!', 'success');
-                } catch {
-                    showNotification('File không hợp lệ!', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        // ========== NOTIFICATION ==========
-        function showNotification(message, type = 'info') {
-            const noti = document.createElement('div');
-            noti.className = `notification ${type}`;
-            noti.textContent = message;
-            document.body.appendChild(noti);
-            setTimeout(() => {
-                noti.remove();
-            }, 2000);
-        }
-
-        // ========== EVENTS ==========
-        // Modal open/close
-        document.getElementById('addBtn').onclick = () => openModal('addModal');
-        document.getElementById('addFirstBtn').onclick = () => openModal('addModal');
-        document.getElementById('closeAddModalBtn').onclick = () => closeModal('addModal');
-        document.getElementById('cancelBtn').onclick = () => closeModal('addModal');
-        document.get
